@@ -7,7 +7,10 @@ var parameters = {
   player: {
     velocity: 100
   },
-  directions: { UP: 'up', DOWN: 'Down', LEFT: 'left', RIGHT: 'right' }
+  directions: { UP: 'up', DOWN: 'Down', LEFT: 'left', RIGHT: 'right' },
+  enemies: {
+    seeDistance: 100
+  }
 };
 
 var player = null;
@@ -203,9 +206,15 @@ var mummy_speed = 20;
 
 function followash()
 {
+  // Se o player está longe, 
+  if (Phaser.Math.distance(player.body.x, player.body.y, mummy.body.x, mummy.body.y) > 100) {
+    mummy.body.setZeroVelocity();
+    return;
+  }
+
   if (player.body.x < mummy.body.x)
   {
-    mummy.body.velocity.x = mummy_speed * -1;
+    mummy.body.velocity.x = mummy_speed * -2;
   }
   else
   {
@@ -213,7 +222,7 @@ function followash()
   }
   if (player.body.y < mummy.body.y)
   {
-    mummy.body.velocity.y = mummy_speed * -1;
+    mummy.body.velocity.y = mummy_speed * -2;
   }
   else
   {
