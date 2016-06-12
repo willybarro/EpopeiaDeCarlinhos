@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="26" height="20" tilewidth="32" tileheight="32" nextobjectid="36">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="26" height="20" tilewidth="32" tileheight="32" nextobjectid="39">
  <tileset firstgid="1" name="forest_tiles" tilewidth="32" tileheight="32" tilecount="256" columns="16">
   <image source="../../../sprite/forest_tiles.png" width="512" height="512"/>
  </tileset>
  <tileset firstgid="257" name="carlinhosv2" tilewidth="64" tileheight="64" tilecount="273" columns="13">
-  <image source="../../../sprite/carlinhosv2.png" width="832" height="1344"/>
+  <image source="../../../sprite/carlinhos.png" width="832" height="1344"/>
  </tileset>
  <layer name="background" width="26" height="20">
   <data encoding="csv">
@@ -58,9 +58,6 @@
   <object id="16" name="stone" x="32" y="60">
    <polyline points="0,0 189.333,69.3333 252,130.667 253.333,192 193.333,193.333 190.667,162.667 162.667,162.667 32,64 0,34.6667 0,0.04167"/>
   </object>
-  <object id="17" name="lake" x="32" y="384">
-   <polyline points="15,9 16,177.333 164,178.333 189.333,156 177.364,107.576 128.545,89.5758 127.878,58.9697 149.576,58.7273 98,8 15,8.99852"/>
-  </object>
   <object id="19" name="hole" x="638" y="72">
    <polyline points="0,0 -17,13 -23,25 96,140 143,139 156,113 151,18 136,0 1,1"/>
   </object>
@@ -78,6 +75,9 @@
   </object>
   <object id="35" x="30.6667" y="675.667">
    <polyline points="0,0 1.33333,-702.667 -50.6667,-696 -84,-6.66667 -29.3333,48 1.33333,1.33333"/>
+  </object>
+  <object id="38" x="42" y="412">
+   <polyline points="0,0 19.5,-20 96,-22 110.5,4.5 111,13 128.045,13 141.909,22.5455 117.318,22.5455 118,60.5 150.5,60 150.5,76.5 159,77 169.5,88.5 172.5,101 166.5,106.5 166.5,109.5 172.5,112 177.5,124.5 174,130 3.5,130 0,0.0555556"/>
   </object>
  </objectgroup>
 </map>

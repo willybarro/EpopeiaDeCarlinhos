@@ -1,12 +1,17 @@
 ﻿// http://plnkr.co/edit/zTEX2W2XJiBKTfC88ONc?p=preview
 /// <reference path="../phaser.js" />
 
-var playerCG,wallsCG, mummyCG, shroomcollisiongroup;
+var playerCG,wallsCG, mummyCG, coinCG;
+var bgm = null;
+
 var parameters = {
+  debug: {
+    body: true,
+  },
   canvasSize: {w: 832, h: 640},
   player: {
     velocity: 100,
-    lifes: 3
+    lives: 3
   },
   directions: { UP: 'up', DOWN: 'Down', LEFT: 'left', RIGHT: 'right' },
   enemies: {
@@ -16,10 +21,11 @@ var parameters = {
 
 var player = null;
 var spawn = {}
-spawn.player = function(x, y, cg) {
+spawn.ash = function(x, y, cg) {
+    var lastDirection = parameters.directions.DOWN;
     var spt = game.add.sprite(x, y, 'ash');
 
-    game.physics.p2.enable(spt,false); 
+    game.physics.p2.enable(spt, parameters.debug.body); 
     spt.body.enableBody = true;
     spt.body.fixedRotation = true;
     spt.body.setCollisionGroup(cg);
@@ -31,6 +37,108 @@ spawn.player = function(x, y, cg) {
     spt.animations.add('right', [12, 13, 14, 15], 10, true);
 
     spt.anchor.setTo(0.5, 0.5);
+
+    spt.animateLeft = function() {
+      spt.animations.play('left');
+      lastDirection = parameters.directions.LEFT;
+    }
+
+    spt.animateUp = function() {
+      spt.animations.play('up');
+      lastDirection = parameters.directions.UP;
+
+    }
+
+    spt.animateRight = function() {
+      spt.animations.play('right');
+      lastDirection = parameters.directions.RIGHT;
+    }
+
+    spt.animateDown = function() {
+      spt.animations.play('down');
+      lastDirection = parameters.directions.DOWN;
+    }
+
+    spt.animateStop = function() {
+      spt.animations.stop();
+
+      switch (lastDirection) {
+        case parameters.directions.UP:
+          spt.frame = 4;
+        break;
+        case parameters.directions.DOWN:
+          spt.frame = 1;
+        break;
+        case parameters.directions.LEFT:
+          spt.frame = 9;
+        break;
+        case parameters.directions.RIGHT:
+          spt.frame = 12;
+        break;
+      }
+    }
+
+    return spt;
+}
+
+spawn.carlinhos = function(x, y, cg) {
+    var lastDirection = parameters.directions.DOWN;
+    var spt = game.add.sprite(x, y, 'carlinhos');
+
+    game.physics.p2.enable(spt, parameters.debug.body); 
+    spt.body.setRectangle(16, 24, 0, 2); // hitbox
+    spt.body.enableBody = true;
+    spt.body.fixedRotation = true;
+    spt.body.setCollisionGroup(cg);
+    
+
+    // Animações
+    spt.animations.add('up', [105, 106, 107, 108, 109, 110, 111, 112], 15, true);
+    spt.animations.add('down', [131, 132, 133, 134, 135, 136, 137, 138], 15, true);
+    spt.animations.add('left', [118, 119, 120, 121, 122, 123, 124, 125], 15, true);
+    spt.animations.add('right', [144, 145, 146, 147, 148, 149, 150, 151], 15, true);
+
+    spt.anchor.setTo(0.5, 0.5);
+
+    spt.animateLeft = function() {
+      spt.animations.play('left');
+      lastDirection = parameters.directions.LEFT;
+    }
+
+    spt.animateUp = function() {
+      spt.animations.play('up');
+      lastDirection = parameters.directions.UP;
+
+    }
+
+    spt.animateRight = function() {
+      spt.animations.play('right');
+      lastDirection = parameters.directions.RIGHT;
+    }
+
+    spt.animateDown = function() {
+      spt.animations.play('down');
+      lastDirection = parameters.directions.DOWN;
+    }
+
+    spt.animateStop = function() {
+      spt.animations.stop();
+
+      switch (lastDirection) {
+        case parameters.directions.UP:
+          spt.frame = 104;
+        break;
+        case parameters.directions.DOWN:
+          spt.frame = 131;
+        break;
+        case parameters.directions.LEFT:
+          spt.frame = 117;
+        break;
+        case parameters.directions.RIGHT:
+          spt.frame = 143;
+        break;
+      }
+    }
 
     return spt;
 }
@@ -47,19 +155,27 @@ states.boot = {
     game.time.advancedTiming = true;
 
     game.state.start('loading');
+    //game.stage.smoothed = false;
   }
 };
 
 states.loading = {
   preload: function() {
+    // Fases
     game.load.image('floresta.tiles', 'Content/assets/sprite/forest_tiles.png');
     game.load.tilemap('floresta.tilemap', "Content/assets/tilemap/floresta/json/carlinhosFloresta.json", null, Phaser.Tilemap.TILED_JSON);
-    
-    game.load.spritesheet('ash', ash_sprite, 16, 16);
-    game.load.spritesheet('mummy', mummy_sprite, 37, 45, 18);
-    game.load.audio('bg-palette', 'Content/assets/102-palette-town-theme.mp3');
+    game.load.audio('bgm.floresta', 'Content/assets/audio/bgm/102-palette-town-theme.mp3');
 
-    var loadingLabel = game.add.text(600, 550, 'Loading...', { font: '30px Courier', fill: '#ffffff' });
+    // Inimigos
+    game.load.spritesheet('ash', ash_sprite, 16, 16);
+    game.load.spritesheet('carlinhos', 'Content/assets/sprite/carlinhos_32.png', 32, 32);
+    game.load.spritesheet('mummy', mummy_sprite, 37, 45, 18);
+
+    // Itens
+    game.load.spritesheet('hotdog', 'Content/assets/sprite/hotdog_16.png', 16, 16);
+
+    // Loading
+    game.add.text(600, 550, 'Loading...', { font: '30px Courier', fill: '#ffffff' });
   },
   create: function() {
     game.state.start('menu');
@@ -81,13 +197,14 @@ states.menu = {
 
 states.floresta = {
   update: update,
+  render: render,
   create: function() {
     g.currentStage = 'fase.floresta';
 
     map = game.add.tilemap('floresta.tilemap');
     map.addTilesetImage('forest_tiles', 'floresta.tiles');
 
-    var shroomcollisiongroup = game.physics.p2.createCollisionGroup();
+    var coinCG = game.physics.p2.createCollisionGroup();
     var playerCG = game.physics.p2.createCollisionGroup();
     var wallsCG =  game.physics.p2.createCollisionGroup();
     var mummyCG = game.physics.p2.createCollisionGroup();
@@ -101,24 +218,25 @@ states.floresta = {
     layer = map.createLayer("background");
     map.createLayer("foreground");
 
-    mushrooms = game.add.group();  
-    mushrooms.enableBody = true;
-    mushrooms.physicsBodyType = Phaser.Physics.P2JS;
+    hotdogs = game.add.group();  
+    hotdogs.enableBody = true;
+    hotdogs.enableBodyDebug = parameters.debug.body;
+    hotdogs.physicsBodyType = Phaser.Physics.P2JS;
 
     // create some guys randomly on our world
     for (i = 0; i < 10; i++)
     {
-      var shroom = mushrooms.create(game.world.randomX, game.world.randomY, shroom_name);
-      shroom.body.setCollisionGroup(shroomcollisiongroup);
-      shroom.body.collides([playerCG, wallsCG]);
+      var hotdog = hotdogs.create(game.world.randomX, game.world.randomY, 'hotdog');
+      hotdog.body.setCollisionGroup(coinCG);
+      hotdog.body.collides([playerCG, wallsCG]);
     }
 
-    player = spawn.player(230, 500, playerCG);
+    player = spawn.carlinhos(240, 500, playerCG);
     player.body.collides(mummyCG);
     player.body.collides(wallsCG);
-    player.body.collides(shroomcollisiongroup,collectCoin,this); // 16
+    player.body.collides(coinCG,collectCoin,this); // 16
 
-    mummy = spawn.player(310, 500, mummyCG);
+    mummy = spawn.ash(310, 500, mummyCG);
     mummy.tint = Math.random() * 0xffffff;
     mummy.body.collides(playerCG, die);
     
@@ -128,34 +246,47 @@ states.floresta = {
 
     game.camera.follow(sprite);
 
+    //game.add.audio('bgm.floresta').play();
+
+    g.createHud();
     g.updateHud();
   }
 }
 
+var scoreText, livesText;
 var g = {
+  score: 0,
   currentStage: null,
   lives: 3,
   loseLife: function() {
-    console.log('lose');
     --g.lives;
-    g.updateHud();
   },
   restartLevel: function() {
-    game.start(currentStage);
+    game.state.start(g.currentStage);
   },
   restartGame: function() {
     game.state.start('fase.floresta');
     g.lives = 3;
   },
+  createHud: function() {
+    scoreText = game.add.text(game.camera.x + 10, game.camera.y + 10, "", {
+      font: "24px Arial",
+      fill: "#ffffff",
+      align: "center"
+    });
+
+    livesText = game.add.text(game.width, game.camera.y + 10, "", {
+      font: "24px Arial",
+      fill: "#ffffff",
+      align: "center"
+    });
+    //text.anchor.set(0.5);
+  },
   updateHud: function() {
-    if (!text) {
-      text = game.add.text(game.camera.x,game.camera.y, "Score: 0", {
-        font: "24px Arial",
-        fill: "#ffffff",
-        align: "center"
-      });
-    }
-    text.setText("Score:" + count + " - Lives: " + g.lives);
+    scoreText.setText("Score: " + g.score);
+
+    livesText.setText("Lives: " + g.lives);
+    livesText.x = game.width - livesText.width - 10;
   }
 }
 
@@ -201,7 +332,6 @@ var mummy_sprite = ''
 var ash_sprite = 'Content/assets/sprite/ash.png';
 var boundaries;
 var text;
-var count = 0;
 var mummy;
 
 
@@ -213,23 +343,29 @@ function die(mummy, player)
     player.sprite.kill();
     g.loseLife();
 
-    var dieText = this.game.add.text(game.camera.width / 2, game.camera.height / 2, "Score: 0", {
+    var dieText = this.game.add.text(game.camera.width / 2, game.camera.height / 2, "", {
       font: "48px Arial",
       fill: "#ffffff",
       align: "center"
     });
+    
+    if (g.lives >= 0) {
+      dieText.setText("Morreu!");
+
+      window.setTimeout(function() {
+        g.restartLevel();
+      }, 2000);
+    } else {
+      dieText.setText("Game Over!");
+      window.setTimeout(function() {
+        g.restartGame();
+      }, 2000);
+    }
+
     dieText.fixedToCamera = false;
-    dieText.setText("Morreu!");
     dieText.x -= dieText.width/2;
     dieText.y -= dieText.height/2;
-
-    window.setTimeout(function() {
-      if (g.lifes >= 0) {
-        g.restartLevel();
-      } else {
-        g.restartGame();
-      }
-    }, 2000);
+    
   }
 }
 
@@ -240,16 +376,19 @@ function followash()
   // Se o player está longe do inimigo, o inimigo para
   if (Phaser.Math.distance(player.body.x, player.body.y, mummy.body.x, mummy.body.y) > parameters.enemies.seeDistance) {
     mummy.body.setZeroVelocity();
+    mummy.animateStop();
     return;
   }
 
   if (player.body.x < mummy.body.x)
   {
     mummy.body.velocity.x = mummy_speed * -2;
+    mummy.animateLeft();
   }
   else
   {
     mummy.body.velocity.x = mummy_speed;
+    mummy.animateRight();
   }
   if (player.body.y < mummy.body.y)
   {
@@ -269,49 +408,25 @@ player.body.velocity.y = 0;
 
 if (cursors.left.isDown) {
   player.body.velocity.x = parameters.player.velocity * -1;
-  player.animations.play('left');
-  this.lastDirection = parameters.directions.LEFT;
+  player.animateLeft();
 }
 else if (cursors.right.isDown) {
   player.body.velocity.x = parameters.player.velocity;
-  player.animations.play('right');
-  this.lastDirection = parameters.directions.RIGHT;
+  player.animateRight();
 }
 else if (cursors.up.isDown) {
   player.body.velocity.y = parameters.player.velocity * -1;
-  player.animations.play('up');
-  this.lastDirection = parameters.directions.UP;
+  player.animateUp();
 }
 else if (cursors.down.isDown) {
   player.body.velocity.y = parameters.player.velocity;
-  player.animations.play('down');
-  this.lastDirection = parameters.directions.DOWN;
+  player.animateDown();
 }
 else {
-  player.animations.stop();
-  switch (this.lastDirection) {
-
-    case parameters.directions.UP:
-    player.frame = 4;
-    break;
-
-    case parameters.directions.DOWN:
-    player.frame = 1;
-    break;
-
-    case parameters.directions.LEFT:
-    player.frame = 9;
-    break;
-
-    case parameters.directions.RIGHT:
-    player.frame = 12;
-    break;
-
-  }
+  player.animateStop();
 }
 
-
-followash();
+//followash();
 
 
 }
@@ -321,14 +436,11 @@ function collectCoin(player, coin) {
 
 
 coin.sprite.kill();
-count++;
+g.score++;
 g.updateHud();
 
 }
 
 function render() {
-  game.debug.body(sprite, '#ff0000', false);
   game.debug.text('FPS: ' + game.time.fps, 2, 14, "#fff");
-
-//game.input.renderDebugInfo(16, 16);
 };
