@@ -1,12 +1,13 @@
 ﻿// http://plnkr.co/edit/zTEX2W2XJiBKTfC88ONc?p=preview
 /// <reference path="../phaser.js" />
 
-var playerCG,wallsCG, mummyCG, coinCG;
+var playerCG,wallsCG, mummyCG, hotdogCG;
 var bgm = null;
 
 var parameters = {
+  BGMEnabled: false,
   debug: {
-    body: true,
+    body: false
   },
   canvasSize: {w: 832, h: 640},
   player: {
@@ -90,13 +91,13 @@ spawn.carlinhos = function(x, y, cg) {
     spt.body.enableBody = true;
     spt.body.fixedRotation = true;
     spt.body.setCollisionGroup(cg);
-    
 
     // Animações
     spt.animations.add('up', [105, 106, 107, 108, 109, 110, 111, 112], 15, true);
     spt.animations.add('down', [131, 132, 133, 134, 135, 136, 137, 138], 15, true);
     spt.animations.add('left', [118, 119, 120, 121, 122, 123, 124, 125], 15, true);
     spt.animations.add('right', [144, 145, 146, 147, 148, 149, 150, 151], 15, true);
+    spt.animations.add('death', [260, 261, 262, 263, 264, 265, 265, 267, 267, 265, 265, 267, 267, 265, 265, 267, 267, 265, 265], 8, false);
 
     spt.anchor.setTo(0.5, 0.5);
 
@@ -121,22 +122,31 @@ spawn.carlinhos = function(x, y, cg) {
       lastDirection = parameters.directions.DOWN;
     }
 
-    spt.animateStop = function() {
-      spt.animations.stop();
+    var unstoppableAnimation = false;
+    spt.animateDeath = function() {
+      unstoppableAnimation = true;
+      spt.body.kinematic = true;
+      spt.animations.play('death', false, false, true);
+    }
 
-      switch (lastDirection) {
-        case parameters.directions.UP:
-          spt.frame = 104;
-        break;
-        case parameters.directions.DOWN:
-          spt.frame = 131;
-        break;
-        case parameters.directions.LEFT:
-          spt.frame = 117;
-        break;
-        case parameters.directions.RIGHT:
-          spt.frame = 143;
-        break;
+    spt.animateStop = function() {
+      if (!unstoppableAnimation) {
+        spt.animations.stop();
+
+        switch (lastDirection) {
+          case parameters.directions.UP:
+            spt.frame = 104;
+          break;
+          case parameters.directions.DOWN:
+            spt.frame = 131;
+          break;
+          case parameters.directions.LEFT:
+            spt.frame = 117;
+          break;
+          case parameters.directions.RIGHT:
+            spt.frame = 143;
+          break;
+        }
       }
     }
 
@@ -204,7 +214,7 @@ states.floresta = {
     map = game.add.tilemap('floresta.tilemap');
     map.addTilesetImage('forest_tiles', 'floresta.tiles');
 
-    var coinCG = game.physics.p2.createCollisionGroup();
+    var hotdogCG = game.physics.p2.createCollisionGroup();
     var playerCG = game.physics.p2.createCollisionGroup();
     var wallsCG =  game.physics.p2.createCollisionGroup();
     var mummyCG = game.physics.p2.createCollisionGroup();
@@ -227,14 +237,14 @@ states.floresta = {
     for (i = 0; i < 10; i++)
     {
       var hotdog = hotdogs.create(game.world.randomX, game.world.randomY, 'hotdog');
-      hotdog.body.setCollisionGroup(coinCG);
+      hotdog.body.setCollisionGroup(hotdogCG);
       hotdog.body.collides([playerCG, wallsCG]);
     }
 
     player = spawn.carlinhos(240, 500, playerCG);
     player.body.collides(mummyCG);
     player.body.collides(wallsCG);
-    player.body.collides(coinCG,collectCoin,this); // 16
+    player.body.collides(hotdogCG, collectHotdog, this); // 16
 
     mummy = spawn.ash(310, 500, mummyCG);
     mummy.tint = Math.random() * 0xffffff;
@@ -246,10 +256,9 @@ states.floresta = {
 
     game.camera.follow(sprite);
 
-    //game.add.audio('bgm.floresta').play();
-
     g.createHud();
     g.updateHud();
+    g.bgm.play(g.bgm.list.FLORESTA);
   }
 }
 
@@ -258,6 +267,23 @@ var g = {
   score: 0,
   currentStage: null,
   lives: 3,
+  bgm: {
+    list: {
+      FLORESTA: 'bgm.floresta'
+    },
+    play: function(asset) {
+      if (parameters.BGMEnabled) {
+        g.bgm.stop();
+        bgm = game.add.audio(asset);
+        bgm.play();
+      }
+    },
+    stop: function() {
+      if (bgm) {
+        bgm.stop();
+      }
+    }
+  },
   loseLife: function() {
     --g.lives;
   },
@@ -337,10 +363,10 @@ var mummy;
 
 
 
-function die(mummy, player) 
+function die(m, p) 
 {
-  if (player.sprite.alive) {
-    player.sprite.kill();
+  if (p.sprite.alive) {
+    player.animateDeath();
     g.loseLife();
 
     var dieText = this.game.add.text(game.camera.width / 2, game.camera.height / 2, "", {
@@ -354,12 +380,12 @@ function die(mummy, player)
 
       window.setTimeout(function() {
         g.restartLevel();
-      }, 2000);
+      }, 6000);
     } else {
       dieText.setText("Game Over!");
       window.setTimeout(function() {
         g.restartGame();
-      }, 2000);
+      }, 6000);
     }
 
     dieText.fixedToCamera = false;
@@ -373,8 +399,11 @@ var mummy_speed = 20;
 
 function followash()
 {
-  // Se o player está longe do inimigo, o inimigo para
-  if (Phaser.Math.distance(player.body.x, player.body.y, mummy.body.x, mummy.body.y) > parameters.enemies.seeDistance) {
+  // Se o player está longe do inimigo ou o player está morto, o inimigo para
+  if (
+    Phaser.Math.distance(player.body.x, player.body.y, mummy.body.x, mummy.body.y) > parameters.enemies.seeDistance ||
+    !player.alive
+    ) {
     mummy.body.setZeroVelocity();
     mummy.animateStop();
     return;
@@ -387,7 +416,7 @@ function followash()
   }
   else
   {
-    mummy.body.velocity.x = mummy_speed;
+    mummy.body.velocity.x = mummy_speed * 2;
     mummy.animateRight();
   }
   if (player.body.y < mummy.body.y)
@@ -396,7 +425,7 @@ function followash()
   }
   else
   {
-    mummy.body.velocity.y = mummy_speed;
+    mummy.body.velocity.y = mummy_speed * 2;
   }
 
 }
@@ -426,19 +455,18 @@ else {
   player.animateStop();
 }
 
-//followash();
+followash();
 
 
 }
 
-function collectCoin(player, coin) {
-// we touched a coin, so kill it, update our score, and then update our score text
+function collectHotdog(player, coin) {
+  if (coin.sprite.alive) {
+    coin.sprite.kill();
 
-
-coin.sprite.kill();
-g.score++;
-g.updateHud();
-
+    g.score += 100;
+    g.updateHud();
+  }
 }
 
 function render() {
