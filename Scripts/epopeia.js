@@ -5,7 +5,8 @@ var playerCG,wallsCG, mummyCG, shroomcollisiongroup;
 var parameters = {
   canvasSize: {w: 832, h: 640},
   player: {
-    velocity: 100
+    velocity: 100,
+    lifes: 3
   },
   directions: { UP: 'up', DOWN: 'Down', LEFT: 'left', RIGHT: 'right' },
   enemies: {
@@ -81,6 +82,8 @@ states.menu = {
 states.floresta = {
   update: update,
   create: function() {
+    g.currentStage = 'fase.floresta';
+
     map = game.add.tilemap('floresta.tilemap');
     map.addTilesetImage('forest_tiles', 'floresta.tiles');
 
@@ -110,14 +113,13 @@ states.floresta = {
       shroom.body.collides([playerCG, wallsCG]);
     }
 
-    console.log('Groups: ', playerCG, mummyCG);
-
     player = spawn.player(230, 500, playerCG);
     player.body.collides(mummyCG);
     player.body.collides(wallsCG);
     player.body.collides(shroomcollisiongroup,collectCoin,this); // 16
 
-    mummy = spawn.player(270, 500, mummyCG);
+    mummy = spawn.player(310, 500, mummyCG);
+    mummy.tint = Math.random() * 0xffffff;
     mummy.body.collides(playerCG, die);
     
 
@@ -126,12 +128,34 @@ states.floresta = {
 
     game.camera.follow(sprite);
 
-    // create our score text in the top left corner
-    text = game.add.text(game.camera.x,game.camera.y, "Score: 0", {
-      font: "24px Arial",
-      fill: "#ff0044",
-      align: "center"
-    });
+    g.updateHud();
+  }
+}
+
+var g = {
+  currentStage: null,
+  lives: 3,
+  loseLife: function() {
+    console.log('lose');
+    --g.lives;
+    g.updateHud();
+  },
+  restartLevel: function() {
+    game.start(currentStage);
+  },
+  restartGame: function() {
+    game.state.start('fase.floresta');
+    g.lives = 3;
+  },
+  updateHud: function() {
+    if (!text) {
+      text = game.add.text(game.camera.x,game.camera.y, "Score: 0", {
+        font: "24px Arial",
+        fill: "#ffffff",
+        align: "center"
+      });
+    }
+    text.setText("Score:" + count + " - Lives: " + g.lives);
   }
 }
 
@@ -185,29 +209,36 @@ var mummy;
 
 function die(mummy, player) 
 {
-  player.sprite.kill();
-  var dieText = this.game.add.text(game.camera.width / 2, game.camera.height / 2, "Score: 0", {
-    font: "48px Arial",
-    fill: "#ff0044",
-    align: "left"
-  });
-  dieText.fixedToCamera = false;
-  dieText.setText("YOU DIED");
+  if (player.sprite.alive) {
+    player.sprite.kill();
+    g.loseLife();
 
+    var dieText = this.game.add.text(game.camera.width / 2, game.camera.height / 2, "Score: 0", {
+      font: "48px Arial",
+      fill: "#ffffff",
+      align: "center"
+    });
+    dieText.fixedToCamera = false;
+    dieText.setText("Morreu!");
+    dieText.x -= dieText.width/2;
+    dieText.y -= dieText.height/2;
+
+    window.setTimeout(function() {
+      if (g.lifes >= 0) {
+        g.restartLevel();
+      } else {
+        g.restartGame();
+      }
+    }, 2000);
+  }
 }
 
-function updateText() {
-
-// This updates every frame
-text.setText("Score:" + count);
-
-}
 var mummy_speed = 20;
 
 function followash()
 {
-  // Se o player está longe, 
-  if (Phaser.Math.distance(player.body.x, player.body.y, mummy.body.x, mummy.body.y) > 100) {
+  // Se o player está longe do inimigo, o inimigo para
+  if (Phaser.Math.distance(player.body.x, player.body.y, mummy.body.x, mummy.body.y) > parameters.enemies.seeDistance) {
     mummy.body.setZeroVelocity();
     return;
   }
@@ -291,7 +322,7 @@ function collectCoin(player, coin) {
 
 coin.sprite.kill();
 count++;
-updateText();
+g.updateHud();
 
 }
 

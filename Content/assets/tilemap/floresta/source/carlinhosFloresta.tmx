@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="26" height="20" tilewidth="32" tileheight="32" nextobjectid="30">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="26" height="20" tilewidth="32" tileheight="32" nextobjectid="36">
  <tileset firstgid="1" name="forest_tiles" tilewidth="32" tileheight="32" tilecount="256" columns="16">
   <image source="../../../sprite/forest_tiles.png" width="512" height="512"/>
  </tileset>
@@ -64,8 +64,20 @@
   <object id="19" name="hole" x="638" y="72">
    <polyline points="0,0 -17,13 -23,25 96,140 143,139 156,113 151,18 136,0 1,1"/>
   </object>
-  <object id="28" x="747" y="480">
+  <object id="28" name="wood" x="747" y="480">
    <polyline points="0,0 -72,73 -72,95 -14,95 53,30 53,4 0,2"/>
+  </object>
+  <object id="32" x="20" y="62.3333">
+   <polyline points="0,0 821.333,0 818.667,-73.3333 -33.3333,-69.3333 -33.3333,1.33333 2.66667,1.33333"/>
+  </object>
+  <object id="33" x="798.667" y="73">
+   <polyline points="0,0 0,-6.66667 1.33333,588 84,590.667 86.6667,41.3333 29.3333,-33.3333 0,-20 0,0"/>
+  </object>
+  <object id="34" x="-22.6667" y="573">
+   <polyline points="0,0 869.333,0 868,97.3333 -9.33333,76 0,0"/>
+  </object>
+  <object id="35" x="30.6667" y="675.667">
+   <polyline points="0,0 1.33333,-702.667 -50.6667,-696 -84,-6.66667 -29.3333,48 1.33333,1.33333"/>
   </object>
  </objectgroup>
 </map>
