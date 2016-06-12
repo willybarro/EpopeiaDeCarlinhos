@@ -1,11 +1,13 @@
 ﻿// http://plnkr.co/edit/zTEX2W2XJiBKTfC88ONc?p=preview
 /// <reference path="../phaser.js" />
 
-var playerCG,wallsCG, mummyCG, hotdogCG;
+var playerCG, wallsCG, enemiesCG, mummyCG, hotdogCG, bulletsCG;
+var bullets;
+var bulletTime = 0;
 var bgm = null;
 
 var parameters = {
-  BGMEnabled: true,
+  BGMEnabled: false,
   debug: {
     body: false
   },
@@ -13,6 +15,9 @@ var parameters = {
   player: {
     velocity: 100,
     lives: 3
+  },
+  bullet: {
+    speed: 200
   },
   directions: { UP: 'up', DOWN: 'Down', LEFT: 'left', RIGHT: 'right' },
   enemies: {
@@ -162,28 +167,85 @@ spawn.player = function(x, y, cg) {
   // Controles do carlinhos
   carlinhos.update = function() {
     if (carlinhos.alive) {
-      // Velocity and movement
-      player.body.velocity.x = 0;
-      player.body.velocity.y = 0;
+      carlinhos.body.setZeroVelocity();
 
-      if (cursors.left.isDown) {
-        player.body.velocity.x = parameters.player.velocity * -1;
-        player.animateLeft();
+      // Movimentação
+      if (cursors.A.isDown) {
+        carlinhos.body.velocity.x = parameters.player.velocity * -1;
+        carlinhos.animateLeft();
       }
-      else if (cursors.right.isDown) {
-        player.body.velocity.x = parameters.player.velocity;
-        player.animateRight();
+      else if (cursors.D.isDown) {
+        carlinhos.body.velocity.x = parameters.player.velocity;
+        carlinhos.animateRight();
       }
-      else if (cursors.up.isDown) {
-        player.body.velocity.y = parameters.player.velocity * -1;
-        player.animateUp();
+      else if (cursors.W.isDown) {
+        carlinhos.body.velocity.y = parameters.player.velocity * -1;
+        carlinhos.animateUp();
       }
-      else if (cursors.down.isDown) {
-        player.body.velocity.y = parameters.player.velocity;
-        player.animateDown();
+      else if (cursors.S.isDown) {
+        carlinhos.body.velocity.y = parameters.player.velocity;
+        carlinhos.animateDown();
       }
       else {
-        player.animateStop();
+        carlinhos.animateStop();
+      }
+
+      // Tiro
+      if (cursors.left.isDown) {
+        carlinhos.shoot(parameters.directions.LEFT);
+      }
+      else if (cursors.right.isDown) {
+        carlinhos.shoot(parameters.directions.RIGHT);
+      }
+      else if (cursors.up.isDown) {
+        carlinhos.shoot(parameters.directions.UP);
+      }
+      else if (cursors.down.isDown) {
+        carlinhos.shoot(parameters.directions.DOWN);
+      }
+    }
+  }
+
+  // Projétil
+  bullets = game.add.group();
+  bullets.enableBody = true;
+  bullets.physicsBodyType = Phaser.Physics.P2JS;
+  bullets.enableBodyDebug = parameters.debug.body;
+  bullets.createMultiple(30, 'bullet');
+
+  for (i in bullets.children) {
+    var bullet = bullets.children[i];
+    bullet.body.setCollisionGroup(bulletsCG);
+    bullet.body.collides(wallsCG, function(b, o) {
+      b.sprite.kill();
+    });
+    bullet.body.collides(enemiesCG, hitEnemy);
+  }
+
+  carlinhos.shoot = function(direction) {
+    if (game.time.now > bulletTime)
+    {
+      bullet = bullets.getFirstExists(false);
+
+      if (bullet) {
+        bullet.reset(player.x, player.y);
+        switch (direction) {
+          case parameters.directions.LEFT:
+            bullet.body.velocity.x = -parameters.bullet.speed;
+          break;
+          case parameters.directions.RIGHT:
+            bullet.body.velocity.x = parameters.bullet.speed;
+          break;
+          case parameters.directions.UP:
+            bullet.body.velocity.y = -parameters.bullet.speed;
+          break;
+          case parameters.directions.DOWN:
+            bullet.body.velocity.y = parameters.bullet.speed;
+          break;
+        }
+
+        bulletTime = game.time.now + 500;
+        g.sfx.play(g.sfx.list.BULLET_AK);
       }
     }
   }
@@ -211,6 +273,7 @@ spawn.player = function(x, y, cg) {
       }, 3000);
     } else {
       dieText.setText("Game Over!");
+
       window.setTimeout(function() {
         g.restartGame();
       }, 3000);
@@ -231,7 +294,20 @@ states.boot = {
     game.physics.startSystem(Phaser.Physics.P2JS);
     game.physics.p2.setImpactEvents(true);
     game.physics.p2.updateBoundsCollisionGroup();
+
+    // Cria os grupos de colisão
+    hotdogCG = game.physics.p2.createCollisionGroup();
+    playerCG = game.physics.p2.createCollisionGroup();
+    wallsCG =  game.physics.p2.createCollisionGroup();
+    enemiesCG = game.physics.p2.createCollisionGroup();
+    bulletsCG = game.physics.p2.createCollisionGroup();
+
+    // Registra as setas e o WASD
     cursors = game.input.keyboard.createCursorKeys();
+    cursors.W = game.input.keyboard.addKey(Phaser.Keyboard.W);
+    cursors.A = game.input.keyboard.addKey(Phaser.Keyboard.A);
+    cursors.S = game.input.keyboard.addKey(Phaser.Keyboard.S);
+    cursors.D = game.input.keyboard.addKey(Phaser.Keyboard.D);
 
     game.time.advancedTiming = true;
 
@@ -258,6 +334,9 @@ states.loading = {
     game.load.audio(g.sfx.list.DEATH[5], 'Content/assets/audio/sfx/death-6.ogg');
     game.load.audio(g.sfx.list.DEATH[6], 'Content/assets/audio/sfx/death-7.ogg');
 
+    game.load.audio(g.sfx.list.BULLET_RIFLE, 'Content/assets/audio/sfx/bullet-rifle.ogg');
+    game.load.audio(g.sfx.list.BULLET_AK, 'Content/assets/audio/sfx/bullet-ak.ogg');
+
     // Inimigos
     game.load.spritesheet('ash', ash_sprite, 16, 16);
     game.load.spritesheet('carlinhos', 'Content/assets/sprite/carlinhos_32.png', 32, 32);
@@ -265,6 +344,9 @@ states.loading = {
 
     // Itens
     game.load.spritesheet('hotdog', 'Content/assets/sprite/hotdog_16.png', 16, 16);
+
+    // Sprites
+    game.load.spritesheet('bullet', 'Content/assets/sprite/bullet.png', 9, 9);
 
     // Loading
     game.add.text(600, 550, 'Loading...', { font: '30px Courier', fill: '#ffffff' });
@@ -296,16 +378,11 @@ states.floresta = {
     map = game.add.tilemap('floresta.tilemap');
     map.addTilesetImage('forest_tiles', 'floresta.tiles');
 
-    var hotdogCG = game.physics.p2.createCollisionGroup();
-    var playerCG = game.physics.p2.createCollisionGroup();
-    var wallsCG =  game.physics.p2.createCollisionGroup();
-    var mummyCG = game.physics.p2.createCollisionGroup();
-
     var walls = game.physics.p2.convertCollisionObjects(map, "collision", true);   
     for(var wall in walls)
     {
       walls[wall].setCollisionGroup(wallsCG);
-      walls[wall].collides(playerCG);
+      walls[wall].collides([playerCG, bulletsCG]);
     }
     layer = map.createLayer("background");
     map.createLayer("foreground");
@@ -324,13 +401,13 @@ states.floresta = {
     }
 
     player = spawn.player(240, 500, playerCG);
-    player.body.collides(mummyCG);
-    player.body.collides(wallsCG);
-    player.body.collides(hotdogCG, collectHotdog, this); // 16
+    player.body.collides([wallsCG, enemiesCG]);
+    player.body.collides(hotdogCG, collectHotdog, this);
 
-    mummy = spawn.ash(310, 500, mummyCG);
+    mummy = spawn.ash(310, 500, enemiesCG);
     mummy.tint = Math.random() * 0xffffff;
     mummy.body.collides(playerCG, die);
+    mummy.body.collides(bulletsCG);
     
 
 
@@ -359,7 +436,9 @@ var g = {
         'sfx.death_5',
         'sfx.death_6',
         'sfx.death_7',
-      ]
+      ],
+      BULLET_RIFLE: 'sfx.bullet_rifle',
+      BULLET_AK: 'sfx.bullet_ak'
     },
     /**
      * Toca o efeito sonoro escolhido. Se for um array, toca um som aleatório.
@@ -522,6 +601,20 @@ function collectHotdog(player, coin) {
     coin.sprite.kill();
 
     g.score += 100;
+    g.updateHud();
+  }
+}
+
+function hitEnemy(bullet, enemy) {
+  if (bullet.sprite.alive) {
+    console.log('kill');
+    bullet.sprite.kill();
+  }
+
+  if (enemy.sprite.alive) {
+    enemy.sprite.kill();
+
+    g.score += 1000;
     g.updateHud();
   }
 }
