@@ -5,7 +5,7 @@ var playerCG,wallsCG, mummyCG, hotdogCG;
 var bgm = null;
 
 var parameters = {
-  BGMEnabled: false,
+  BGMEnabled: true,
   debug: {
     body: false
   },
@@ -122,15 +122,18 @@ spawn.carlinhos = function(x, y, cg) {
       lastDirection = parameters.directions.DOWN;
     }
 
-    var unstoppableAnimation = false;
+    var dying = false;
     spt.animateDeath = function() {
-      unstoppableAnimation = true;
-      spt.body.kinematic = true;
+      spt.animations.stop();
+      dying = true;
+
+      g.sfx.play(g.sfx.list.DEATH);
+      spt.alive = false;
       spt.animations.play('death', false, false, true);
     }
 
     spt.animateStop = function() {
-      if (!unstoppableAnimation) {
+      if (!dying) {
         spt.animations.stop();
 
         switch (lastDirection) {
@@ -151,6 +154,74 @@ spawn.carlinhos = function(x, y, cg) {
     }
 
     return spt;
+}
+
+spawn.player = function(x, y, cg) {
+  var carlinhos = spawn.carlinhos(x, y, cg);
+
+  // Controles do carlinhos
+  carlinhos.update = function() {
+    if (carlinhos.alive) {
+      // Velocity and movement
+      player.body.velocity.x = 0;
+      player.body.velocity.y = 0;
+
+      if (cursors.left.isDown) {
+        player.body.velocity.x = parameters.player.velocity * -1;
+        player.animateLeft();
+      }
+      else if (cursors.right.isDown) {
+        player.body.velocity.x = parameters.player.velocity;
+        player.animateRight();
+      }
+      else if (cursors.up.isDown) {
+        player.body.velocity.y = parameters.player.velocity * -1;
+        player.animateUp();
+      }
+      else if (cursors.down.isDown) {
+        player.body.velocity.y = parameters.player.velocity;
+        player.animateDown();
+      }
+      else {
+        player.animateStop();
+      }
+    }
+  }
+
+  // Morte do carlinhos
+  carlinhos.die = function() {
+    carlinhos.body.velocity.x = 0;
+    carlinhos.body.velocity.y = 0;
+    carlinhos.body.kinematic = true;
+
+    carlinhos.animateDeath();
+    g.loseLife();
+
+    var dieText = this.game.add.text(game.camera.width / 2, game.camera.height / 2, "", {
+      font: "48px Arial",
+      fill: "#ffffff",
+      align: "center"
+    });
+    
+    if (g.lives >= 0) {
+      dieText.setText("Morreu!");
+
+      window.setTimeout(function() {
+        g.restartLevel();
+      }, 3000);
+    } else {
+      dieText.setText("Game Over!");
+      window.setTimeout(function() {
+        g.restartGame();
+      }, 3000);
+    }
+
+    dieText.fixedToCamera = false;
+    dieText.x -= dieText.width/2;
+    dieText.y -= dieText.height/2;
+  }
+
+  return carlinhos;
 }
 
 var states = {};
@@ -174,7 +245,18 @@ states.loading = {
     // Fases
     game.load.image('floresta.tiles', 'Content/assets/sprite/forest_tiles.png');
     game.load.tilemap('floresta.tilemap', "Content/assets/tilemap/floresta/json/carlinhosFloresta.json", null, Phaser.Tilemap.TILED_JSON);
-    game.load.audio('bgm.floresta', 'Content/assets/audio/bgm/102-palette-town-theme.mp3');
+    
+    // BGM
+    game.load.audio('bgm.floresta', 'Content/assets/audio/bgm/palette-town-theme.ogg');
+
+    // SFX
+    game.load.audio(g.sfx.list.DEATH[0], 'Content/assets/audio/sfx/death-1.ogg');
+    game.load.audio(g.sfx.list.DEATH[1], 'Content/assets/audio/sfx/death-2.ogg');
+    game.load.audio(g.sfx.list.DEATH[2], 'Content/assets/audio/sfx/death-3.ogg');
+    game.load.audio(g.sfx.list.DEATH[3], 'Content/assets/audio/sfx/death-4.ogg');
+    game.load.audio(g.sfx.list.DEATH[4], 'Content/assets/audio/sfx/death-5.ogg');
+    game.load.audio(g.sfx.list.DEATH[5], 'Content/assets/audio/sfx/death-6.ogg');
+    game.load.audio(g.sfx.list.DEATH[6], 'Content/assets/audio/sfx/death-7.ogg');
 
     // Inimigos
     game.load.spritesheet('ash', ash_sprite, 16, 16);
@@ -241,7 +323,7 @@ states.floresta = {
       hotdog.body.collides([playerCG, wallsCG]);
     }
 
-    player = spawn.carlinhos(240, 500, playerCG);
+    player = spawn.player(240, 500, playerCG);
     player.body.collides(mummyCG);
     player.body.collides(wallsCG);
     player.body.collides(hotdogCG, collectHotdog, this); // 16
@@ -267,6 +349,31 @@ var g = {
   score: 0,
   currentStage: null,
   lives: 3,
+  sfx: {
+    list: {
+      DEATH: [
+        'sfx.death_1',
+        'sfx.death_2',
+        'sfx.death_3',
+        'sfx.death_4',
+        'sfx.death_5',
+        'sfx.death_6',
+        'sfx.death_7',
+      ]
+    },
+    /**
+     * Toca o efeito sonoro escolhido. Se for um array, toca um som aleatório.
+     */
+    play: function(asset) {
+      if (typeof asset == "object") {
+        multiAsset = asset;
+        var randomKey = Math.floor(Math.random() * multiAsset.length);
+
+        asset = asset[randomKey];
+      }
+      game.add.audio(asset).play();
+    }
+  },
   bgm: {
     list: {
       FLORESTA: 'bgm.floresta'
@@ -291,7 +398,8 @@ var g = {
     game.state.start(g.currentStage);
   },
   restartGame: function() {
-    game.state.start('fase.floresta');
+    game.state.start('menu');
+    g.bgm.stop();
     g.lives = 3;
   },
   createHud: function() {
@@ -366,32 +474,7 @@ var mummy;
 function die(m, p) 
 {
   if (p.sprite.alive) {
-    player.animateDeath();
-    g.loseLife();
-
-    var dieText = this.game.add.text(game.camera.width / 2, game.camera.height / 2, "", {
-      font: "48px Arial",
-      fill: "#ffffff",
-      align: "center"
-    });
-    
-    if (g.lives >= 0) {
-      dieText.setText("Morreu!");
-
-      window.setTimeout(function() {
-        g.restartLevel();
-      }, 6000);
-    } else {
-      dieText.setText("Game Over!");
-      window.setTimeout(function() {
-        g.restartGame();
-      }, 6000);
-    }
-
-    dieText.fixedToCamera = false;
-    dieText.x -= dieText.width/2;
-    dieText.y -= dieText.height/2;
-    
+    player.die();
   }
 }
 
@@ -431,33 +514,7 @@ function followash()
 }
 
 function update() {
-// Velocity and movement
-player.body.velocity.x = 0;
-player.body.velocity.y = 0;
-
-if (cursors.left.isDown) {
-  player.body.velocity.x = parameters.player.velocity * -1;
-  player.animateLeft();
-}
-else if (cursors.right.isDown) {
-  player.body.velocity.x = parameters.player.velocity;
-  player.animateRight();
-}
-else if (cursors.up.isDown) {
-  player.body.velocity.y = parameters.player.velocity * -1;
-  player.animateUp();
-}
-else if (cursors.down.isDown) {
-  player.body.velocity.y = parameters.player.velocity;
-  player.animateDown();
-}
-else {
-  player.animateStop();
-}
-
-followash();
-
-
+  followash();
 }
 
 function collectHotdog(player, coin) {
