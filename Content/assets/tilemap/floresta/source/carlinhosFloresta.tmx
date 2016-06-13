@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="26" height="20" tilewidth="32" tileheight="32" nextobjectid="66">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="26" height="20" tilewidth="32" tileheight="32" nextobjectid="85">
  <tileset firstgid="1" name="forest_tiles" tilewidth="32" tileheight="32" tilecount="256" columns="16">
   <image source="../../../sprite/forest_tiles.png" width="512" height="512"/>
  </tileset>
@@ -8,6 +8,9 @@
  </tileset>
  <tileset firstgid="530" name="hotdog_16" tilewidth="16" tileheight="16" tilecount="1" columns="1">
   <image source="../../../sprite/hotdog_16.png" width="16" height="16"/>
+ </tileset>
+ <tileset firstgid="531" name="ash" tilewidth="16" tileheight="16" tilecount="16" columns="16">
+  <image source="../../../sprite/ash.png" width="256" height="16"/>
  </tileset>
  <layer name="background" width="26" height="20">
   <data encoding="csv">
@@ -82,5 +85,13 @@
   <object id="64" gid="530" x="430" y="422" width="16" height="16"/>
   <object id="65" gid="530" x="322" y="368" width="16" height="16"/>
  </objectgroup>
- <objectgroup name="enemies"/>
+ <objectgroup name="enemies">
+  <object id="78" gid="531" x="428" y="251" width="16" height="16"/>
+  <object id="79" gid="531" x="363" y="474" width="16" height="16"/>
+  <object id="80" gid="531" x="133" y="296" width="16" height="16"/>
+  <object id="81" gid="531" x="319" y="335" width="16" height="16"/>
+  <object id="82" gid="531" x="421" y="349" width="16" height="16"/>
+  <object id="83" gid="531" x="232" y="350" width="16" height="16"/>
+  <object id="84" gid="531" x="473" y="489" width="16" height="16"/>
+ </objectgroup>
 </map>

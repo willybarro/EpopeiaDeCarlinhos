@@ -2,8 +2,8 @@
 /// <reference path="../phaser.js" />
 
 var playerCG, wallsCG, enemiesCG, mummyCG, hotdogCG, bulletsCG;
-var bullets;
-var walls;
+var walls, bullets, hotdogs, enemies;
+var map, cursors;
 var bulletTime = 0;
 var bgm = null;
 
@@ -289,7 +289,64 @@ spawn.player = function(x, y, cg) {
     dieText.y -= dieText.height/2;
   }
 
+  // Colisões do Carlinhos
+  carlinhos.body.collides([wallsCG, enemiesCG]);
+  carlinhos.body.collides(hotdogCG, collectHotdog, this);
+
   return carlinhos;
+}
+
+spawn.enemy = function(sprite, x, y) {
+  var enemy;
+  if (sprite == 'ash') {
+    enemy = spawn.ash(x, y, enemiesCG);
+    enemy.tint = Math.random() * 0xffffff;
+  }
+
+  enemy.body.collides(playerCG, die);
+  enemy.body.collides(bulletsCG);
+
+  enemy.update = function() {
+    var enemy_speed = 20;
+    // Se o player está longe do inimigo ou o player está morto, o inimigo para
+    if (
+      Phaser.Math.distance(player.body.x, player.body.y, enemy.body.x, enemy.body.y) > parameters.enemies.seeDistance ||
+      !player.alive
+      ) {
+      enemy.body.setZeroVelocity();
+      enemy.animateStop();
+      return;
+    }
+
+    if (player.body.x < enemy.body.x) {
+      enemy.body.velocity.x = enemy_speed * -2;
+      enemy.animateLeft();
+    } else {
+      enemy.body.velocity.x = enemy_speed * 2;
+      enemy.animateRight();
+    }
+
+    if (player.body.y < enemy.body.y) {
+      enemy.body.velocity.y = enemy_speed * -2;
+    } else {
+      enemy.body.velocity.y = enemy_speed * 2;
+    }
+  }
+
+  return enemy;
+}
+
+spawn.enemies = function() {
+  /**
+   * Acho que essa não é a melhor forma de criar os inimigos a partir da layer de objetos
+   * Mas tá funcionando muito bem :)
+   */
+  var mockenemies = game.add.group();
+  map.createFromObjects('enemies', 531, 'ash', 0, true, false, mockenemies);
+  mockenemies.forEach(function(e) {
+    e.kill();
+    spawn.enemy('ash', e.x, e.y);
+  });
 }
 
 spawn.hotdogs = function(map) {
@@ -298,7 +355,7 @@ spawn.hotdogs = function(map) {
   hotdogs.enableBodyDebug = parameters.debug.body;
   hotdogs.physicsBodyType = Phaser.Physics.P2JS;
 
-  // Cria os hotdogs a partir dos objetos posicionados via tiled
+  // Cria os hotdogs a partir dos objetos posicionados via Tiled
   map.createFromObjects('hotdogs', 530, 'hotdog', 0, true, false, hotdogs);
   for (var i in hotdogs.children) {
     var hotdog = hotdogs.children[i];
@@ -363,9 +420,8 @@ states.loading = {
     game.load.audio(g.sfx.list.DIRT_HIT[1], 'Content/assets/audio/sfx/dirt-hit2.ogg');
 
     // Inimigos
-    game.load.spritesheet('ash', ash_sprite, 16, 16);
+    game.load.spritesheet('ash', 'Content/assets/sprite/ash.png', 16, 16);
     game.load.spritesheet('carlinhos', 'Content/assets/sprite/carlinhos_32.png', 32, 32);
-    game.load.spritesheet('mummy', mummy_sprite, 37, 45, 18);
 
     // Itens
     game.load.spritesheet('hotdog', 'Content/assets/sprite/hotdog_16.png', 16, 16);
@@ -400,33 +456,26 @@ states.floresta = {
   create: function() {
     g.currentStage = 'fase.floresta';
 
+    // Criação do mapa e dos objetos de colisão
     map = game.add.tilemap('floresta.tilemap');
     map.addTilesetImage('forest_tiles', 'floresta.tiles');
-
     walls = game.physics.p2.convertCollisionObjects(map, "collision", true);   
-    for(var wall in walls)
-    {
+    for(var wall in walls) {
       walls[wall].setCollisionGroup(wallsCG);
       walls[wall].collides([playerCG, bulletsCG]);
     }
     layer = map.createLayer("background");
     map.createLayer("foreground");
 
+    // Cria os atores e itens
     player = spawn.player(240, 500, playerCG);
-    player.body.collides([wallsCG, enemiesCG]);
-    player.body.collides(hotdogCG, collectHotdog, this);
+    game.camera.follow(player);
 
-    mummy = spawn.ash(310, 500, enemiesCG);
-    mummy.tint = Math.random() * 0xffffff;
-    mummy.body.collides(playerCG, die);
-    mummy.body.collides(bulletsCG);
-
-    // Cria os hotdogs
+    spawn.enemies();
     spawn.hotdogs(map);
 
+    // Resize, atualiza o hud e toca a musica
     layer.resizeWorld();
-    game.camera.follow(sprite);
-
     g.createHud();
     g.updateHud();
     g.bgm.play(g.bgm.list.FLORESTA);
@@ -538,79 +587,14 @@ game.state.start('boot');
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-var map;
-var layer;
-
-var cursors;
-var sprite;
-var fort;
-var mushrooms;
-var tileset_name = 'grass';
-var tileset_url = 'Content/assets/sprite/forest_tiles.png';
-
-var thing_name = 'thing';
-var thing_url = '';
-
-var shroom_name = 'littleshrooms_0';
-var shroom_url = '';
-
-var background_name = 'Ground';
-var fort_name = 'Fort';
-
-var mummy_sprite = ''
-
-var ash_sprite = 'Content/assets/sprite/ash.png';
-var boundaries;
-var text;
-var mummy;
-
-
-
-
-function die(m, p) 
-{
+function die(m, p) {
   if (p.sprite.alive) {
     player.die();
   }
 }
 
-var mummy_speed = 20;
-
-function followash()
-{
-  // Se o player está longe do inimigo ou o player está morto, o inimigo para
-  if (
-    Phaser.Math.distance(player.body.x, player.body.y, mummy.body.x, mummy.body.y) > parameters.enemies.seeDistance ||
-    !player.alive
-    ) {
-    mummy.body.setZeroVelocity();
-    mummy.animateStop();
-    return;
-  }
-
-  if (player.body.x < mummy.body.x)
-  {
-    mummy.body.velocity.x = mummy_speed * -2;
-    mummy.animateLeft();
-  }
-  else
-  {
-    mummy.body.velocity.x = mummy_speed * 2;
-    mummy.animateRight();
-  }
-  if (player.body.y < mummy.body.y)
-  {
-    mummy.body.velocity.y = mummy_speed * -2;
-  }
-  else
-  {
-    mummy.body.velocity.y = mummy_speed * 2;
-  }
-
-}
-
 function update() {
-  followash();
+  
 }
 
 function collectHotdog(player, coin) {
