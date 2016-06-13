@@ -24,7 +24,7 @@ var parameters = {
   },
   directions: { UP: 'up', DOWN: 'Down', LEFT: 'left', RIGHT: 'right' },
   enemies: {
-    seeDistance: 100
+    seeDistance: 150
   }
 };
 
