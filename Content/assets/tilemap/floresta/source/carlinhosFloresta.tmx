@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="26" height="20" tilewidth="32" tileheight="32" nextobjectid="39">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="26" height="20" tilewidth="32" tileheight="32" nextobjectid="66">
  <tileset firstgid="1" name="forest_tiles" tilewidth="32" tileheight="32" tilecount="256" columns="16">
   <image source="../../../sprite/forest_tiles.png" width="512" height="512"/>
  </tileset>
  <tileset firstgid="257" name="carlinhosv2" tilewidth="64" tileheight="64" tilecount="273" columns="13">
   <image source="../../../sprite/carlinhos.png" width="832" height="1344"/>
+ </tileset>
+ <tileset firstgid="530" name="hotdog_16" tilewidth="16" tileheight="16" tilecount="1" columns="1">
+  <image source="../../../sprite/hotdog_16.png" width="16" height="16"/>
  </tileset>
  <layer name="background" width="26" height="20">
   <data encoding="csv">
@@ -64,20 +67,20 @@
   <object id="28" name="wood" x="747" y="480">
    <polyline points="0,0 -72,73 -72,95 -14,95 53,30 53,4 0,2"/>
   </object>
-  <object id="32" x="20" y="62.3333">
-   <polyline points="0,0 821.333,0 818.667,-73.3333 -33.3333,-69.3333 -33.3333,1.33333 2.66667,1.33333"/>
-  </object>
   <object id="33" x="798.667" y="73" visible="0">
    <polyline points="0,0 0,-6.66667 1.33333,588 84,590.667 86.6667,41.3333 29.3333,-33.3333 0,-20 0,0"/>
-  </object>
-  <object id="34" x="-22.6667" y="573">
-   <polyline points="0,0 869.333,0 868,97.3333 -9.33333,76 0,0"/>
-  </object>
-  <object id="35" x="30.6667" y="675.667">
-   <polyline points="0,0 1.33333,-702.667 -50.6667,-696 -84,-6.66667 -29.3333,48 1.33333,1.33333"/>
   </object>
   <object id="38" x="42" y="412">
    <polyline points="0,0 19.5,-20 96,-22 110.5,4.5 111,13 128.045,13 141.909,22.5455 117.318,22.5455 118,60.5 150.5,60 150.5,76.5 159,77 169.5,88.5 172.5,101 166.5,106.5 166.5,109.5 172.5,112 177.5,124.5 174,130 3.5,130 0,0.0555556"/>
   </object>
  </objectgroup>
+ <objectgroup name="hotdogs" offsetx="-2" offsety="0">
+  <object id="60" gid="530" x="424" y="193" width="16" height="16"/>
+  <object id="61" gid="530" x="236" y="428" width="16" height="16"/>
+  <object id="62" gid="530" x="190" y="364" width="16" height="16"/>
+  <object id="63" gid="530" x="239" y="565" width="16" height="16"/>
+  <object id="64" gid="530" x="430" y="422" width="16" height="16"/>
+  <object id="65" gid="530" x="322" y="368" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup name="enemies"/>
 </map>

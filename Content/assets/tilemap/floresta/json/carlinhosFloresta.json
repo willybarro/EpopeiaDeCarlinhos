@@ -177,42 +177,6 @@
                 }, 
                 {
                  "height":0,
-                 "id":32,
-                 "name":"",
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":821.333,
-                         "y":0
-                        }, 
-                        {
-                         "x":818.667,
-                         "y":-73.3333
-                        }, 
-                        {
-                         "x":-33.3333,
-                         "y":-69.3333
-                        }, 
-                        {
-                         "x":-33.3333,
-                         "y":1.33333
-                        }, 
-                        {
-                         "x":2.66667,
-                         "y":1.33333
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":20,
-                 "y":62.3333
-                }, 
-                {
-                 "height":0,
                  "id":33,
                  "name":"",
                  "polyline":[
@@ -254,74 +218,6 @@
                  "width":0,
                  "x":798.667,
                  "y":73
-                }, 
-                {
-                 "height":0,
-                 "id":34,
-                 "name":"",
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":869.333,
-                         "y":0
-                        }, 
-                        {
-                         "x":868,
-                         "y":97.3333
-                        }, 
-                        {
-                         "x":-9.33333,
-                         "y":76
-                        }, 
-                        {
-                         "x":0,
-                         "y":0
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":-22.6667,
-                 "y":573
-                }, 
-                {
-                 "height":0,
-                 "id":35,
-                 "name":"",
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":1.33333,
-                         "y":-702.667
-                        }, 
-                        {
-                         "x":-50.6667,
-                         "y":-696
-                        }, 
-                        {
-                         "x":-84,
-                         "y":-6.66667
-                        }, 
-                        {
-                         "x":-29.3333,
-                         "y":48
-                        }, 
-                        {
-                         "x":1.33333,
-                         "y":1.33333
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":30.6667,
-                 "y":675.667
                 }, 
                 {
                  "height":0,
@@ -427,8 +323,94 @@
          "width":0,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "height":20,
+         "name":"hotdogs",
+         "objects":[
+                {
+                 "gid":530,
+                 "height":16,
+                 "id":60,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":424,
+                 "y":193
+                }, 
+                {
+                 "gid":530,
+                 "height":16,
+                 "id":61,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":236,
+                 "y":428
+                }, 
+                {
+                 "gid":530,
+                 "height":16,
+                 "id":62,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":190,
+                 "y":364
+                }, 
+                {
+                 "gid":530,
+                 "height":16,
+                 "id":63,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":239,
+                 "y":565
+                }, 
+                {
+                 "gid":530,
+                 "height":16,
+                 "id":64,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":430,
+                 "y":422
+                }, 
+                {
+                 "gid":530,
+                 "height":16,
+                 "id":65,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":322,
+                 "y":368
+                }],
+         "offsetx":-2,
+         "offsety":0,
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "width":26,
+         "x":0,
+         "y":0
         }],
- "nextobjectid":39,
+ "nextobjectid":66,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":32,
@@ -458,6 +440,19 @@
          "tilecount":273,
          "tileheight":64,
          "tilewidth":64
+        }, 
+        {
+         "columns":1,
+         "firstgid":530,
+         "image":"..\/..\/..\/sprite\/hotdog_16.png",
+         "imageheight":16,
+         "imagewidth":16,
+         "margin":0,
+         "name":"hotdog_16",
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":16,
+         "tilewidth":16
         }],
  "tilewidth":32,
  "version":1,

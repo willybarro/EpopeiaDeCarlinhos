@@ -3,11 +3,12 @@
 
 var playerCG, wallsCG, enemiesCG, mummyCG, hotdogCG, bulletsCG;
 var bullets;
+var walls;
 var bulletTime = 0;
 var bgm = null;
 
 var parameters = {
-  BGMEnabled: false,
+  BGMEnabled: true,
   debug: {
     body: false
   },
@@ -17,7 +18,9 @@ var parameters = {
     lives: 3
   },
   bullet: {
-    speed: 200
+    speed: 200,
+    lifespan: 600,
+    timeBetweenShots: 400
   },
   directions: { UP: 'up', DOWN: 'Down', LEFT: 'left', RIGHT: 'right' },
   enemies: {
@@ -225,7 +228,7 @@ spawn.player = function(x, y, cg) {
   carlinhos.shoot = function(direction) {
     if (game.time.now > bulletTime)
     {
-      bullet = bullets.getFirstExists(false);
+      var bullet = bullets.getFirstExists(false);
 
       if (bullet) {
         bullet.reset(player.x, player.y);
@@ -244,7 +247,9 @@ spawn.player = function(x, y, cg) {
           break;
         }
 
-        bulletTime = game.time.now + 500;
+        bulletTime = game.time.now + parameters.bullet.timeBetweenShots;
+        bullet.lifespan = parameters.bullet.lifespan;
+
         g.sfx.play(g.sfx.list.BULLET_AK);
       }
     }
@@ -287,6 +292,21 @@ spawn.player = function(x, y, cg) {
   return carlinhos;
 }
 
+spawn.hotdogs = function(map) {
+  hotdogs = game.add.group();  
+  hotdogs.enableBody = true;
+  hotdogs.enableBodyDebug = parameters.debug.body;
+  hotdogs.physicsBodyType = Phaser.Physics.P2JS;
+
+  // Cria os hotdogs a partir dos objetos posicionados via tiled
+  map.createFromObjects('hotdogs', 530, 'hotdog', 0, true, false, hotdogs);
+  for (var i in hotdogs.children) {
+    var hotdog = hotdogs.children[i];
+    hotdog.body.setCollisionGroup(hotdogCG);
+    hotdog.body.collides([playerCG, wallsCG]);
+  }
+}
+
 var states = {};
 states.boot = {
   create: function() {
@@ -323,7 +343,7 @@ states.loading = {
     game.load.tilemap('floresta.tilemap', "Content/assets/tilemap/floresta/json/carlinhosFloresta.json", null, Phaser.Tilemap.TILED_JSON);
     
     // BGM
-    game.load.audio('bgm.floresta', 'Content/assets/audio/bgm/palette-town-theme.ogg');
+    game.load.audio('bgm.floresta', 'Content/assets/audio/bgm/00-over-the-bay.ogg');
 
     // SFX
     game.load.audio(g.sfx.list.DEATH[0], 'Content/assets/audio/sfx/death-1.ogg');
@@ -336,6 +356,11 @@ states.loading = {
 
     game.load.audio(g.sfx.list.BULLET_RIFLE, 'Content/assets/audio/sfx/bullet-rifle.ogg');
     game.load.audio(g.sfx.list.BULLET_AK, 'Content/assets/audio/sfx/bullet-ak.ogg');
+
+    game.load.audio(g.sfx.list.HOTDOG_PICKUP, 'Content/assets/audio/sfx/hotdog-pickup.ogg');
+
+    game.load.audio(g.sfx.list.DIRT_HIT[0], 'Content/assets/audio/sfx/dirt-hit1.ogg');
+    game.load.audio(g.sfx.list.DIRT_HIT[1], 'Content/assets/audio/sfx/dirt-hit2.ogg');
 
     // Inimigos
     game.load.spritesheet('ash', ash_sprite, 16, 16);
@@ -378,7 +403,7 @@ states.floresta = {
     map = game.add.tilemap('floresta.tilemap');
     map.addTilesetImage('forest_tiles', 'floresta.tiles');
 
-    var walls = game.physics.p2.convertCollisionObjects(map, "collision", true);   
+    walls = game.physics.p2.convertCollisionObjects(map, "collision", true);   
     for(var wall in walls)
     {
       walls[wall].setCollisionGroup(wallsCG);
@@ -386,19 +411,6 @@ states.floresta = {
     }
     layer = map.createLayer("background");
     map.createLayer("foreground");
-
-    hotdogs = game.add.group();  
-    hotdogs.enableBody = true;
-    hotdogs.enableBodyDebug = parameters.debug.body;
-    hotdogs.physicsBodyType = Phaser.Physics.P2JS;
-
-    // create some guys randomly on our world
-    for (i = 0; i < 10; i++)
-    {
-      var hotdog = hotdogs.create(game.world.randomX, game.world.randomY, 'hotdog');
-      hotdog.body.setCollisionGroup(hotdogCG);
-      hotdog.body.collides([playerCG, wallsCG]);
-    }
 
     player = spawn.player(240, 500, playerCG);
     player.body.collides([wallsCG, enemiesCG]);
@@ -408,11 +420,11 @@ states.floresta = {
     mummy.tint = Math.random() * 0xffffff;
     mummy.body.collides(playerCG, die);
     mummy.body.collides(bulletsCG);
-    
 
+    // Cria os hotdogs
+    spawn.hotdogs(map);
 
     layer.resizeWorld();
-
     game.camera.follow(sprite);
 
     g.createHud();
@@ -435,10 +447,15 @@ var g = {
         'sfx.death_4',
         'sfx.death_5',
         'sfx.death_6',
-        'sfx.death_7',
+        'sfx.death_7'
+      ],
+      DIRT_HIT: [
+        'sfx.dirt_hit1',
+        'sfx.dirt_hit2'
       ],
       BULLET_RIFLE: 'sfx.bullet_rifle',
-      BULLET_AK: 'sfx.bullet_ak'
+      BULLET_AK: 'sfx.bullet_ak',
+      HOTDOG_PICKUP: 'sfx.hotdog_pickup'
     },
     /**
      * Toca o efeito sonoro escolhido. Se for um array, toca um som aleatório.
@@ -461,7 +478,7 @@ var g = {
       if (parameters.BGMEnabled) {
         g.bgm.stop();
         bgm = game.add.audio(asset);
-        bgm.play();
+        bgm.play('', 0, 1, true);
       }
     },
     stop: function() {
@@ -598,6 +615,7 @@ function update() {
 
 function collectHotdog(player, coin) {
   if (coin.sprite.alive) {
+    g.sfx.play(g.sfx.list.HOTDOG_PICKUP);
     coin.sprite.kill();
 
     g.score += 100;
@@ -607,8 +625,8 @@ function collectHotdog(player, coin) {
 
 function hitEnemy(bullet, enemy) {
   if (bullet.sprite.alive) {
-    console.log('kill');
     bullet.sprite.kill();
+    g.sfx.play(g.sfx.list.DIRT_HIT);
   }
 
   if (enemy.sprite.alive) {
