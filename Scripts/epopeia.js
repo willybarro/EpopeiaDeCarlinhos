@@ -305,6 +305,7 @@ spawn.enemy = function(sprite, x, y) {
 
   enemy.body.collides(playerCG, die);
   enemy.body.collides(bulletsCG);
+  enemy.body.collides(wallsCG);
 
   enemy.update = function() {
     var enemy_speed = 20;
@@ -462,7 +463,7 @@ states.floresta = {
     walls = game.physics.p2.convertCollisionObjects(map, "collision", true);   
     for(var wall in walls) {
       walls[wall].setCollisionGroup(wallsCG);
-      walls[wall].collides([playerCG, bulletsCG]);
+      walls[wall].collides([playerCG, bulletsCG, enemiesCG]);
     }
     layer = map.createLayer("background");
     map.createLayer("foreground");
