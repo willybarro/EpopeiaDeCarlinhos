@@ -337,7 +337,12 @@ spawn.enemy = function(sprite, x, y) {
   return enemy;
 }
 
+
 spawn.enemies = function() {
+  if (!enemies) {
+    enemies = game.add.group();
+  }
+
   /**
    * Acho que essa não é a melhor forma de criar os inimigos a partir da layer de objetos
    * Mas tá funcionando muito bem :)
@@ -346,7 +351,7 @@ spawn.enemies = function() {
   map.createFromObjects('enemies', 531, 'ash', 0, true, false, mockenemies);
   mockenemies.forEach(function(e) {
     e.kill();
-    spawn.enemy('ash', e.x, e.y);
+    enemies.add(spawn.enemy('ash', e.x, e.y));
   });
 }
 
