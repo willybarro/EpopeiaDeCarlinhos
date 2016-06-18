@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="26" height="20" tilewidth="32" tileheight="32" nextobjectid="130">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="26" height="20" tilewidth="32" tileheight="32" nextobjectid="169">
  <tileset firstgid="1" name="forest_tiles" tilewidth="32" tileheight="32" tilecount="256" columns="16">
   <image source="../../../sprite/forest_tiles.png" width="512" height="512"/>
  </tileset>
@@ -70,14 +70,23 @@
   <object id="28" name="wood" x="747" y="480">
    <polyline points="0,0 -72,73 -72,95 -14,95 53,30 53,4 0,2"/>
   </object>
-  <object id="33" x="798.667" y="73" visible="0">
-   <polyline points="0,0 0,-6.66667 1.33333,588 84,590.667 86.6667,41.3333 29.3333,-33.3333 0,-20 0,0"/>
-  </object>
-  <object id="38" x="42" y="412">
+  <object id="38" name="lake" x="42" y="412">
    <polyline points="0,0 19.5,-20 96,-22 110.5,4.5 111,13 128.045,13 141.909,22.5455 117.318,22.5455 118,60.5 150.5,60 150.5,76.5 159,77 169.5,88.5 172.5,101 166.5,106.5 166.5,109.5 172.5,112 177.5,124.5 174,130 3.5,130 0,0.0555556"/>
   </object>
+  <object id="150" name="wall-bottom" x="-2.66667" y="577">
+   <polyline points="0,0 846.667,0 848,76 -2.66667,80 0,0"/>
+  </object>
+  <object id="162" name="wall-left" x="33.3333" y="567.667">
+   <polyline points="-4.875,6.125 -49.3333,10.6667 -37.6667,-574.333 -6.33333,-576 -4.95833,3.5"/>
+  </object>
+  <object id="165" name="wall-top" x="30" y="-8">
+   <polyline points="0,0 0,63 819.333,61 822,-12.3333 0.666667,-0.333333"/>
+  </object>
+  <object id="166" name="wall-right" x="853.333" y="61">
+   <polyline points="0,0 -46.6667,-4 -50.6667,508 0,508 0,1.33333"/>
+  </object>
  </objectgroup>
- <objectgroup name="hotdogs" offsetx="-2" offsety="0">
+ <objectgroup name="hotdogs" offsetx="-2" offsety="1.33333">
   <object id="60" gid="530" x="424" y="193" width="16" height="16"/>
   <object id="61" gid="530" x="236" y="428" width="16" height="16"/>
   <object id="62" gid="530" x="190" y="364" width="16" height="16"/>
@@ -86,57 +95,6 @@
   <object id="65" gid="530" x="322" y="368" width="16" height="16"/>
  </objectgroup>
  <objectgroup name="enemies">
-  <object id="78" gid="531" x="428" y="251" width="16" height="16"/>
-  <object id="79" gid="531" x="363" y="474" width="16" height="16"/>
-  <object id="80" gid="531" x="133" y="296" width="16" height="16"/>
-  <object id="81" gid="531" x="319" y="335" width="16" height="16"/>
-  <object id="82" gid="531" x="421" y="349" width="16" height="16"/>
-  <object id="83" gid="531" x="232" y="350" width="16" height="16"/>
-  <object id="84" gid="531" x="473" y="489" width="16" height="16"/>
-  <object id="85" gid="531" x="529" y="251" width="16" height="16"/>
-  <object id="86" gid="531" x="527" y="369" width="16" height="16"/>
-  <object id="87" gid="531" x="289" y="401" width="16" height="16"/>
-  <object id="88" gid="531" x="274" y="342" width="16" height="16"/>
-  <object id="89" gid="531" x="243" y="307" width="16" height="16"/>
-  <object id="90" gid="531" x="183" y="295" width="16" height="16"/>
-  <object id="91" gid="531" x="159" y="332" width="16" height="16"/>
-  <object id="92" gid="531" x="98" y="334" width="16" height="16"/>
-  <object id="93" gid="531" x="95" y="370" width="16" height="16"/>
-  <object id="94" gid="531" x="182" y="392" width="16" height="16"/>
-  <object id="95" gid="531" x="205" y="419" width="16" height="16"/>
-  <object id="96" gid="531" x="282" y="451" width="16" height="16"/>
-  <object id="97" gid="531" x="287" y="481" width="16" height="16"/>
-  <object id="98" gid="531" x="355" y="452" width="16" height="16"/>
-  <object id="99" gid="531" x="372" y="416" width="16" height="16"/>
-  <object id="100" gid="531" x="390" y="385" width="16" height="16"/>
-  <object id="101" gid="531" x="407" y="410" width="16" height="16"/>
-  <object id="102" gid="531" x="409" y="465" width="16" height="16"/>
-  <object id="103" gid="531" x="446" y="492" width="16" height="16"/>
-  <object id="104" gid="531" x="464" y="533" width="16" height="16"/>
-  <object id="105" gid="531" x="416" y="536" width="16" height="16"/>
-  <object id="106" gid="531" x="473" y="446" width="16" height="16"/>
-  <object id="107" gid="531" x="516" y="423" width="16" height="16"/>
-  <object id="108" gid="531" x="543" y="393" width="16" height="16"/>
-  <object id="109" gid="531" x="460" y="353" width="16" height="16"/>
-  <object id="110" gid="531" x="457" y="378" width="16" height="16"/>
-  <object id="111" gid="531" x="364" y="280" width="16" height="16"/>
-  <object id="112" gid="531" x="399" y="267" width="16" height="16"/>
-  <object id="113" gid="531" x="419" y="308" width="16" height="16"/>
-  <object id="114" gid="531" x="492" y="312" width="16" height="16"/>
-  <object id="115" gid="531" x="527" y="308" width="16" height="16"/>
-  <object id="116" gid="531" x="495" y="150" width="16" height="16"/>
-  <object id="117" gid="531" x="303" y="115" width="16" height="16"/>
-  <object id="118" gid="531" x="268" y="150" width="16" height="16"/>
-  <object id="119" gid="531" x="303" y="172" width="16" height="16"/>
-  <object id="120" gid="531" x="334" y="161" width="16" height="16"/>
-  <object id="121" gid="531" x="338" y="199" width="16" height="16"/>
-  <object id="122" gid="531" x="374" y="180" width="16" height="16"/>
-  <object id="123" gid="531" x="362" y="220" width="16" height="16"/>
-  <object id="124" gid="531" x="419" y="148" width="16" height="16"/>
-  <object id="125" gid="531" x="319" y="271" width="16" height="16"/>
-  <object id="126" gid="531" x="477" y="137" width="16" height="16"/>
-  <object id="127" gid="531" x="579" y="231" width="16" height="16"/>
-  <object id="128" gid="531" x="583" y="293" width="16" height="16"/>
-  <object id="129" gid="531" x="616" y="306" width="16" height="16"/>
+  <object id="79" gid="531" x="549.667" y="318" width="16" height="16"/>
  </objectgroup>
 </map>

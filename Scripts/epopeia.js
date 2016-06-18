@@ -12,7 +12,8 @@ var parameters = {
   debug: {
     body: false
   },
-  canvasSize: {w: 832, h: 640},
+  // canvasSize: {w: 832, h: 640},
+  canvasSize: {w: 832/2, h: 640/2},
   player: {
     velocity: 100,
     lives: 3
@@ -46,6 +47,10 @@ spawn.ash = function(x, y, cg) {
     spt.animations.add('right', [12, 13, 14, 15], 10, true);
 
     spt.anchor.setTo(0.5, 0.5);
+
+    spt.events.onKilled.add(function() {
+      console.log("morri", this);
+    }, this);
 
     spt.animateLeft = function() {
       spt.animations.play('left');
@@ -218,6 +223,10 @@ spawn.player = function(x, y, cg) {
 
   for (i in bullets.children) {
     var bullet = bullets.children[i];
+    bullet.events.onKilled.add(function() {
+      g.sfx.play(g.sfx.list.BULLET_HIT);
+    }, this);
+
     bullet.body.setCollisionGroup(bulletsCG);
     bullet.body.collides(wallsCG, function(b, o) {
       b.sprite.kill();
@@ -250,15 +259,14 @@ spawn.player = function(x, y, cg) {
         bulletTime = game.time.now + parameters.bullet.timeBetweenShots;
         bullet.lifespan = parameters.bullet.lifespan;
 
-        g.sfx.play(g.sfx.list.BULLET_AK);
+        g.sfx.play(g.sfx.list.BULLET);
       }
     }
   }
 
   // Morte do carlinhos
   carlinhos.die = function() {
-    carlinhos.body.velocity.x = 0;
-    carlinhos.body.velocity.y = 0;
+    carlinhos.body.setZeroVelocity();
     carlinhos.body.kinematic = true;
 
     carlinhos.animateDeath();
@@ -338,17 +346,15 @@ spawn.enemy = function(sprite, x, y) {
 }
 
 
-spawn.enemies = function() {
-  if (!enemies) {
-    enemies = game.add.group();
-  }
+spawn.enemies = function(enemyGid) {
+  enemies = game.add.group();
 
   /**
    * Acho que essa não é a melhor forma de criar os inimigos a partir da layer de objetos
    * Mas tá funcionando muito bem :)
    */
   var mockenemies = game.add.group();
-  map.createFromObjects('enemies', 531, 'ash', 0, true, false, mockenemies);
+  map.createFromObjects('enemies', enemyGid, 'ash', 0, true, false, mockenemies);
   mockenemies.forEach(function(e) {
     e.kill();
     enemies.add(spawn.enemy('ash', e.x, e.y));
@@ -371,128 +377,182 @@ spawn.hotdogs = function(map) {
 }
 
 var states = {};
-states.boot = {
-  create: function() {
-    // Inicia física
-    game.physics.startSystem(Phaser.Physics.P2JS);
-    game.physics.p2.setImpactEvents(true);
-    game.physics.p2.updateBoundsCollisionGroup();
+states.boot = function() {
+  return {
+    create: function() {
+      // Inicia física
+      game.physics.startSystem(Phaser.Physics.P2JS);
+      game.physics.p2.setImpactEvents(true);
+      game.physics.p2.updateBoundsCollisionGroup();
 
-    // Cria os grupos de colisão
-    hotdogCG = game.physics.p2.createCollisionGroup();
-    playerCG = game.physics.p2.createCollisionGroup();
-    wallsCG =  game.physics.p2.createCollisionGroup();
-    enemiesCG = game.physics.p2.createCollisionGroup();
-    bulletsCG = game.physics.p2.createCollisionGroup();
+      // Cria os grupos de colisão
+      hotdogCG = game.physics.p2.createCollisionGroup();
+      playerCG = game.physics.p2.createCollisionGroup();
+      wallsCG =  game.physics.p2.createCollisionGroup();
+      enemiesCG = game.physics.p2.createCollisionGroup();
+      bulletsCG = game.physics.p2.createCollisionGroup();
 
-    // Registra as setas e o WASD
-    cursors = game.input.keyboard.createCursorKeys();
-    cursors.W = game.input.keyboard.addKey(Phaser.Keyboard.W);
-    cursors.A = game.input.keyboard.addKey(Phaser.Keyboard.A);
-    cursors.S = game.input.keyboard.addKey(Phaser.Keyboard.S);
-    cursors.D = game.input.keyboard.addKey(Phaser.Keyboard.D);
+      // Registra as setas e o WASD
+      cursors = game.input.keyboard.createCursorKeys();
+      cursors.W = game.input.keyboard.addKey(Phaser.Keyboard.W);
+      cursors.A = game.input.keyboard.addKey(Phaser.Keyboard.A);
+      cursors.S = game.input.keyboard.addKey(Phaser.Keyboard.S);
+      cursors.D = game.input.keyboard.addKey(Phaser.Keyboard.D);
 
-    game.time.advancedTiming = true;
+      game.time.advancedTiming = true;
 
-    game.state.start('loading');
-    //game.stage.smoothed = false;
-  }
-};
-
-states.loading = {
-  preload: function() {
-    // Fases
-    game.load.image('floresta.tiles', 'Content/assets/sprite/forest_tiles.png');
-    game.load.tilemap('floresta.tilemap', "Content/assets/tilemap/floresta/json/carlinhosFloresta.json", null, Phaser.Tilemap.TILED_JSON);
-    
-    // BGM
-    game.load.audio('bgm.floresta', 'Content/assets/audio/bgm/00-over-the-bay.ogg');
-
-    // SFX
-    game.load.audio(g.sfx.list.DEATH[0], 'Content/assets/audio/sfx/death-1.ogg');
-    game.load.audio(g.sfx.list.DEATH[1], 'Content/assets/audio/sfx/death-2.ogg');
-    game.load.audio(g.sfx.list.DEATH[2], 'Content/assets/audio/sfx/death-3.ogg');
-    game.load.audio(g.sfx.list.DEATH[3], 'Content/assets/audio/sfx/death-4.ogg');
-    game.load.audio(g.sfx.list.DEATH[4], 'Content/assets/audio/sfx/death-5.ogg');
-    game.load.audio(g.sfx.list.DEATH[5], 'Content/assets/audio/sfx/death-6.ogg');
-    game.load.audio(g.sfx.list.DEATH[6], 'Content/assets/audio/sfx/death-7.ogg');
-
-    game.load.audio(g.sfx.list.BULLET_RIFLE, 'Content/assets/audio/sfx/bullet-rifle.ogg');
-    game.load.audio(g.sfx.list.BULLET_AK, 'Content/assets/audio/sfx/bullet-ak.ogg');
-
-    game.load.audio(g.sfx.list.HOTDOG_PICKUP, 'Content/assets/audio/sfx/hotdog-pickup.ogg');
-
-    game.load.audio(g.sfx.list.DIRT_HIT[0], 'Content/assets/audio/sfx/dirt-hit1.ogg');
-    game.load.audio(g.sfx.list.DIRT_HIT[1], 'Content/assets/audio/sfx/dirt-hit2.ogg');
-
-    // Inimigos
-    game.load.spritesheet('ash', 'Content/assets/sprite/ash.png', 16, 16);
-    game.load.spritesheet('carlinhos', 'Content/assets/sprite/carlinhos_32.png', 32, 32);
-
-    // Itens
-    game.load.spritesheet('hotdog', 'Content/assets/sprite/hotdog_16.png', 16, 16);
-
-    // Sprites
-    game.load.spritesheet('bullet', 'Content/assets/sprite/bullet.png', 9, 9);
-
-    // Loading
-    game.add.text(600, 550, 'Loading...', { font: '30px Courier', fill: '#ffffff' });
-  },
-  create: function() {
-    game.state.start('menu');
-  }
-};
-
-states.menu = {
-  create: function() {
-    game.add.text(80, 80, 'A Epopeia de Carlinhos', {font: '50px Arial', fill: '#ffffff'});
-    game.add.text(80, game.world.height-80, 'Pressione ENTER para iniciar', {font: '50px Arial', fill: '#ffffff'});
-
-    var key = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-    key.onDown.addOnce(function() {
-      game.state.start('fase.floresta');
-
-    }, this);
-  }
-};
-
-states.floresta = {
-  update: update,
-  render: render,
-  create: function() {
-    g.currentStage = 'fase.floresta';
-
-    // Criação do mapa e dos objetos de colisão
-    map = game.add.tilemap('floresta.tilemap');
-    map.addTilesetImage('forest_tiles', 'floresta.tiles');
-    walls = game.physics.p2.convertCollisionObjects(map, "collision", true);   
-    for(var wall in walls) {
-      walls[wall].setCollisionGroup(wallsCG);
-      walls[wall].collides([playerCG, bulletsCG, enemiesCG]);
+      game.state.start('loading');
+      //game.stage.smoothed = false;
     }
-    layer = map.createLayer("background");
-    map.createLayer("foreground");
+  };
+}
 
-    // Cria os atores e itens
-    player = spawn.player(240, 500, playerCG);
-    game.camera.follow(player);
+states.loading = function() {
+  return {
+    preload: function() {
+      // Fases
+      game.load.image('floresta.tiles', 'Content/assets/sprite/forest_tiles.png');
+      game.load.tilemap('floresta.tilemap', "Content/assets/tilemap/floresta/json/carlinhosFloresta.json", null, Phaser.Tilemap.TILED_JSON);
 
-    spawn.enemies();
-    spawn.hotdogs(map);
+      game.load.image('calcadao.tiles', 'Content/assets/sprite/city_outside.png');
+      game.load.tilemap('calcadao.tilemap', "Content/assets/tilemap/floresta/json/carlinhosCalcadao.json", null, Phaser.Tilemap.TILED_JSON);
+      
+      // BGM
+      game.load.audio('bgm.floresta', 'Content/assets/audio/bgm/00-over-the-bay.ogg');
+      game.load.audio('bgm.calcadao', 'Content/assets/audio/bgm/00-make-me-dance.ogg');
 
-    // Resize, atualiza o hud e toca a musica
-    layer.resizeWorld();
-    g.createHud();
-    g.updateHud();
-    g.bgm.play(g.bgm.list.FLORESTA);
+      // SFX
+      game.load.audio(g.sfx.list.DEATH[0], 'Content/assets/audio/sfx/death-1.ogg');
+      game.load.audio(g.sfx.list.DEATH[1], 'Content/assets/audio/sfx/death-2.ogg');
+      game.load.audio(g.sfx.list.DEATH[2], 'Content/assets/audio/sfx/death-3.ogg');
+      game.load.audio(g.sfx.list.DEATH[3], 'Content/assets/audio/sfx/death-4.ogg');
+      game.load.audio(g.sfx.list.DEATH[4], 'Content/assets/audio/sfx/death-5.ogg');
+      game.load.audio(g.sfx.list.DEATH[5], 'Content/assets/audio/sfx/death-6.ogg');
+      game.load.audio(g.sfx.list.DEATH[6], 'Content/assets/audio/sfx/death-7.ogg');
+
+      game.load.audio(g.sfx.list.BULLET, 'Content/assets/audio/sfx/bullet.ogg');
+
+      game.load.audio(g.sfx.list.HOTDOG_PICKUP, 'Content/assets/audio/sfx/hotdog-pickup.ogg');
+
+      game.load.audio(g.sfx.list.BULLET_HIT, 'Content/assets/audio/sfx/bullet-hit.ogg');
+
+      // Inimigos
+      game.load.spritesheet('ash', 'Content/assets/sprite/ash.png', 16, 16);
+      game.load.spritesheet('carlinhos', 'Content/assets/sprite/carlinhos_32.png', 32, 32);
+
+      // Itens
+      game.load.spritesheet('hotdog', 'Content/assets/sprite/hotdog_16.png', 16, 16);
+
+      // Sprites
+      game.load.spritesheet('bullet', 'Content/assets/sprite/bullet.png', 9, 9);
+
+      // Loading
+      game.add.text(600, 550, 'Loading...', { font: '30px Courier', fill: '#ffffff' });
+    },
+    create: function() {
+      game.state.start('menu');
+    }
   }
+};
+
+states.menu = function() {
+  return {
+    create: function() {
+      game.add.text(80, 80, 'A Epopeia de Carlinhos', {font: '50px Arial', fill: '#ffffff'});
+      game.add.text(80, game.world.height-80, 'Pressione ENTER para iniciar', {font: '50px Arial', fill: '#ffffff'});
+
+      var key = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+      key.onDown.addOnce(function() {
+        game.state.start('fase.floresta');
+      }, this);
+    }
+  }
+};
+
+states.floresta = function() {
+  return {
+    update: update,
+    render: render,
+    create: function() {
+      g.currentState = 'fase.floresta';
+
+      // Criação do mapa e dos objetos de colisão
+      map = game.add.tilemap('floresta.tilemap');
+      map.addTilesetImage('forest_tiles', 'floresta.tiles');
+      walls = game.physics.p2.convertCollisionObjects(map, "collision", true);   
+      for(var wall in walls) {
+        walls[wall].setCollisionGroup(wallsCG);
+        walls[wall].collides([playerCG, bulletsCG, enemiesCG]);
+      }
+      layer = map.createLayer("background");
+      map.createLayer("foreground");
+
+      // Cria os atores e itens
+      player = spawn.player(240, 500, playerCG);
+      game.camera.follow(player);
+
+      spawn.enemies(531);
+      spawn.hotdogs(map);
+
+      // Resize, atualiza o hud e toca a musica
+      layer.resizeWorld();
+      g.createHud();
+      g.updateHud();
+      g.bgm.play(g.bgm.list.FLORESTA);
+    }
+  };
+}
+
+states.calcadao = function() {
+  return {
+    update: update,
+    render: render,
+    create: function() {
+      g.currentState = 'fase.calcadao';
+
+      // Criação do mapa e dos objetos de colisão
+      map = game.add.tilemap('calcadao.tilemap');
+      map.addTilesetImage('city_outside', 'calcadao.tiles');
+      walls = game.physics.p2.convertCollisionObjects(map, "collision", true);   
+      for(var wall in walls) {
+        walls[wall].setCollisionGroup(wallsCG);
+        walls[wall].collides([playerCG, bulletsCG, enemiesCG]);
+      }
+      layer = map.createLayer("background");
+      map.createLayer("foreground");
+
+      // Cria os atores e itens
+      player = spawn.player(240, 500, playerCG);
+      game.camera.follow(player);
+
+      spawn.enemies(706);
+      // spawn.hotdogs(map);
+
+      // Resize, atualiza o hud e toca a musica
+      layer.resizeWorld();
+      g.createHud();
+      g.updateHud();
+      g.bgm.play(g.bgm.list.CALCADAO);
+    }
+  };
 }
 
 var scoreText, livesText;
 var g = {
   score: 0,
-  currentStage: null,
+  currentState: null,
+  changingStages: false,
   lives: 3,
+  stageCleared: function() {
+    g.changingStages = true;
+
+    console.log('cleared');
+    g.gotoNextStage();
+  },
+  gotoNextStage: function() {
+    game.state.start('fase.calcadao');
+    g.changingStages = false;
+  },
   sfx: {
     list: {
       DEATH: [
@@ -508,8 +568,8 @@ var g = {
         'sfx.dirt_hit1',
         'sfx.dirt_hit2'
       ],
-      BULLET_RIFLE: 'sfx.bullet_rifle',
-      BULLET_AK: 'sfx.bullet_ak',
+      BULLET_HIT: 'sfx.bullet_hit',
+      BULLET: 'sfx.bullet',
       HOTDOG_PICKUP: 'sfx.hotdog_pickup'
     },
     /**
@@ -527,7 +587,8 @@ var g = {
   },
   bgm: {
     list: {
-      FLORESTA: 'bgm.floresta'
+      FLORESTA: 'bgm.floresta',
+      CALCADAO: 'bgm.calcadao'
     },
     play: function(asset) {
       if (parameters.BGMEnabled) {
@@ -546,7 +607,7 @@ var g = {
     --g.lives;
   },
   restartLevel: function() {
-    game.state.start(g.currentStage);
+    game.state.start(g.currentState);
   },
   restartGame: function() {
     game.state.start('menu');
@@ -581,7 +642,11 @@ var game = new Phaser.Game(parameters.canvasSize.w, parameters.canvasSize.h, Pha
 game.state.add('boot', states.boot);
 game.state.add('loading', states.loading);
 game.state.add('menu', states.menu);
+game.state.add('gameFinish', states.gameFinish);
+
 game.state.add('fase.floresta', states.floresta);
+game.state.add('fase.calcadao', states.calcadao);
+game.state.add('fase.barco', states.barco);
 
 game.state.start('boot');
 
@@ -600,7 +665,9 @@ function die(m, p) {
 }
 
 function update() {
-  
+  if (enemies && enemies.countLiving() == 0 && !g.changingStages) {
+    g.stageCleared();
+  }
 }
 
 function collectHotdog(player, coin) {
@@ -616,7 +683,6 @@ function collectHotdog(player, coin) {
 function hitEnemy(bullet, enemy) {
   if (bullet.sprite.alive) {
     bullet.sprite.kill();
-    g.sfx.play(g.sfx.list.DIRT_HIT);
   }
 
   if (enemy.sprite.alive) {
