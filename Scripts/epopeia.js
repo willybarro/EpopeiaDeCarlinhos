@@ -459,8 +459,8 @@ states.loading = function() {
 states.menu = function() {
   return {
     create: function() {
-      game.add.text(80, 80, 'A Epopeia de Carlinhos', {font: '50px Arial', fill: '#ffffff'});
-      game.add.text(80, game.world.height-80, 'Pressione ENTER para iniciar', {font: '50px Arial', fill: '#ffffff'});
+      game.add.text(40, 40, 'A Epopeia de Carlinhos', {font: '24px Arial', fill: '#ffffff'});
+      game.add.text(40, game.world.height-80, 'Pressione ENTER para iniciar', {font: '24px Arial', fill: '#ffffff'});
 
       var key = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
       key.onDown.addOnce(function() {
@@ -649,13 +649,18 @@ var g = {
     });
   },
   updateHud: function() {
-    scoreText.setText("Score: " + g.score);
+    scoreText.setText("Pontos: " + g.pad(g.score, 5));
     scoreText.fixedToCamera = true;
     scoreText.cameraOffset.setTo(game.camera.width - scoreText.width - 10, 10);
 
-    livesText.setText("Lives: " + g.lives);
+    livesText.setText("Vidas: " + g.lives);
     livesText.fixedToCamera = true;
     livesText.cameraOffset.setTo(10, 10);
+  },
+  pad :function(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
   }
 }
 
@@ -699,7 +704,7 @@ function collectHotdog(player, coin) {
     g.sfx.play(g.sfx.list.HOTDOG_PICKUP);
     coin.sprite.kill();
 
-    g.score += 100;
+    g.score += 50;
   }
 }
 
@@ -711,7 +716,7 @@ function hitEnemy(bullet, enemy) {
   if (enemy.sprite.alive) {
     enemy.sprite.kill();
 
-    g.score += 1000;
+    g.score += 100;
   }
 }
 
