@@ -1,6 +1,13 @@
 ﻿// http://plnkr.co/edit/zTEX2W2XJiBKTfC88ONc?p=preview
 /// <reference path="../phaser.js" />
 
+/**
+Ideias para o futuro:
+- Usar Raycasting para os inimigos só irem em direção do player quando realmente o estiverem vendo.
+
+Falta para a entrega:
+*/
+
 var playerCG, wallsCG, enemiesCG, mummyCG, hotdogCG, bulletsCG;
 var walls, bullets, hotdogs, enemies;
 var map, cursors;
