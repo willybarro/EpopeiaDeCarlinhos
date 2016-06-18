@@ -95,6 +95,6 @@
   <object id="65" gid="530" x="322" y="368" width="16" height="16"/>
  </objectgroup>
  <objectgroup name="enemies">
-  <object id="79" gid="531" x="549.667" y="318" width="16" height="16"/>
+  <object id="79" gid="531" x="333.667" y="472.667" width="16" height="16"/>
  </objectgroup>
 </map>

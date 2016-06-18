@@ -10,7 +10,8 @@ var bgm = null;
 var parameters = {
   BGMEnabled: true,
   debug: {
-    body: false
+    body: false,
+    fps: false
   },
   // canvasSize: {w: 832, h: 640},
   canvasSize: {w: 832/2, h: 640/2},
@@ -174,7 +175,7 @@ spawn.player = function(x, y, cg) {
 
   // Controles do carlinhos
   carlinhos.update = function() {
-    if (carlinhos.alive) {
+    if (carlinhos.alive && !g.changingStages) {
       carlinhos.body.setZeroVelocity();
 
       // Movimentação
@@ -272,7 +273,7 @@ spawn.player = function(x, y, cg) {
     carlinhos.animateDeath();
     g.loseLife();
 
-    var dieText = this.game.add.text(game.camera.width / 2, game.camera.height / 2, "", {
+    var dieText = this.game.add.text(game.camera.x + game.camera.width/2, game.camera.y + game.camera.height/2, "", {
       font: "48px Arial",
       fill: "#ffffff",
       align: "center"
@@ -543,11 +544,31 @@ var g = {
   currentState: null,
   changingStages: false,
   lives: 3,
+  gameplayEnabled: false,
+  stopGameplay: function() {
+    // Para o movimento do jogador
+    player.body.setZeroVelocity();
+    player.body.kinematic = true;
+    player.animateStop();
+  },
   stageCleared: function() {
+    g.stopGameplay();
     g.changingStages = true;
 
-    console.log('cleared');
-    g.gotoNextStage();
+    var t = game.add.text(0, 0, "", {
+      font: "24px Arial",
+      fill: "#ffffff",
+      align: "center"
+    });
+    
+    t.setText("Passou de fase!");
+
+    t.fixedToCamera = true;
+    t.cameraOffset.setTo(game.camera.width/2 - t.width/2, 60);
+
+    window.setTimeout(function() {
+      g.gotoNextStage();
+    }, 3000);
   },
   gotoNextStage: function() {
     game.state.start('fase.calcadao');
@@ -616,23 +637,25 @@ var g = {
   },
   createHud: function() {
     scoreText = game.add.text(game.camera.x + 10, game.camera.y + 10, "", {
-      font: "24px Arial",
+      font: "16px Arial",
       fill: "#ffffff",
       align: "center"
     });
 
     livesText = game.add.text(game.width, game.camera.y + 10, "", {
-      font: "24px Arial",
+      font: "16px Arial",
       fill: "#ffffff",
       align: "center"
     });
-    //text.anchor.set(0.5);
   },
   updateHud: function() {
     scoreText.setText("Score: " + g.score);
+    scoreText.fixedToCamera = true;
+    scoreText.cameraOffset.setTo(game.camera.width - scoreText.width - 10, 10);
 
     livesText.setText("Lives: " + g.lives);
-    livesText.x = game.width - livesText.width - 10;
+    livesText.fixedToCamera = true;
+    livesText.cameraOffset.setTo(10, 10);
   }
 }
 
@@ -665,6 +688,7 @@ function die(m, p) {
 }
 
 function update() {
+  g.updateHud();
   if (enemies && enemies.countLiving() == 0 && !g.changingStages) {
     g.stageCleared();
   }
@@ -676,7 +700,6 @@ function collectHotdog(player, coin) {
     coin.sprite.kill();
 
     g.score += 100;
-    g.updateHud();
   }
 }
 
@@ -689,10 +712,11 @@ function hitEnemy(bullet, enemy) {
     enemy.sprite.kill();
 
     g.score += 1000;
-    g.updateHud();
   }
 }
 
 function render() {
-  game.debug.text('FPS: ' + game.time.fps, 2, 14, "#fff");
+  if (parameters.debug.fps) {
+    game.debug.text('FPS: ' + game.time.fps, 2, 14, "#fff");
+  }
 };
