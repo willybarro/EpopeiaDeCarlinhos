@@ -326,7 +326,7 @@ spawn.rat = function(x, y, cg) {
 
   // Animações
   spt.animations.add('down', [27, 28, 29], 10, true);
-  spt.animations.add('up', [0, 1, 2],, 10, true);
+  spt.animations.add('up', [0, 1, 2], 10, true);
   spt.animations.add('left', [9, 10, 11], 10, true);
   spt.animations.add('right', [18, 19, 20], 10, true);
 
