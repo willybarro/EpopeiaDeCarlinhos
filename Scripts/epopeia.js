@@ -18,7 +18,7 @@ var parameters = {
   BGMEnabled: true,
   debug: {
     body: true,
-    fps: true
+    fps: false
   },
   // canvasSize: {w: 832, h: 640},
   canvasSize: {w: 832/2, h: 640/2},
@@ -33,15 +33,34 @@ var parameters = {
   },
   directions: { UP: 'up', DOWN: 'Down', LEFT: 'left', RIGHT: 'right' },
   enemies: {
-    seeDistance: 150
+    seeDistance: 150,
+    perState: {
+
+    }
   }
 };
 
 var player = null;
 var spawn = {}
+
+var enemyList = {
+  ASH: 'ash',
+  PIRATA_M: 'pirata_m',
+  PIRATA_F: 'pirata_f',
+  WOLF: 'wolf',
+  RAT: 'rat',
+  DOG: 'dog',
+  CAT: 'cat',
+};
+
+var stageList = {
+  FLORESTA: 'fase.floresta',
+  CALCADAO: 'fase.calcadao'
+};
+
 spawn.ash = function(x, y, cg) {
     var lastDirection = parameters.directions.DOWN;
-    var spt = game.add.sprite(x, y, 'ash');
+    var spt = game.add.sprite(x, y, enemyList.ASH);
 
     game.physics.p2.enable(spt, parameters.debug.body); 
     spt.body.enableBody = true;
@@ -55,10 +74,6 @@ spawn.ash = function(x, y, cg) {
     spt.animations.add('right', [12, 13, 14, 15], 10, true);
 
     spt.anchor.setTo(0.5, 0.5);
-
-    spt.events.onKilled.add(function() {
-      console.log("morri", this);
-    }, this);
 
     spt.animateLeft = function() {
       spt.animations.play('left');
@@ -105,7 +120,7 @@ spawn.ash = function(x, y, cg) {
 
 spawn.pirata_m = function(x, y, cg) {
   var lastDirection = parameters.directions.DOWN;
-  var spt = game.add.sprite(x, y, 'pirata_m');
+  var spt = game.add.sprite(x, y, enemyList.PIRATA_M);
 
   game.physics.p2.enable(spt, parameters.debug.body);
   spt.body.enableBody = true;
@@ -171,7 +186,7 @@ spawn.pirata_m = function(x, y, cg) {
 
 spawn.pirata_f = function(x, y, cg) {
   var lastDirection = parameters.directions.DOWN;
-  var spt = game.add.sprite(x, y, 'pirata_f');
+  var spt = game.add.sprite(x, y, enemyList.PIRATA_F);
 
   game.physics.p2.enable(spt, parameters.debug.body);
   spt.body.enableBody = true;
@@ -236,7 +251,7 @@ spawn.pirata_f = function(x, y, cg) {
 
 spawn.wolf = function(x, y, cg) {
   var lastDirection = parameters.directions.DOWN;
-  var spt = game.add.sprite(x, y, 'wolf');
+  var spt = game.add.sprite(x, y, enemyList.WOLF);
 
   game.physics.p2.enable(spt, parameters.debug.body);
   spt.body.enableBody = true;
@@ -301,7 +316,7 @@ spawn.wolf = function(x, y, cg) {
 
 spawn.rat = function(x, y, cg) {
   var lastDirection = parameters.directions.DOWN;
-  var spt = game.add.sprite(x, y, 'rat');
+  var spt = game.add.sprite(x, y, enemyList.RAT);
 
   game.physics.p2.enable(spt, parameters.debug.body);
   spt.body.enableBody = true;
@@ -705,15 +720,13 @@ spawn.player = function(x, y, cg) {
 
 spawn.enemy = function(sprite, x, y) {
   var enemy;
-  if (sprite == 'ash') {
-    enemy = spawn.rat(x, y, enemiesCG);
-    enemy.tint = Math.random() * 0xffffff;
-  }
+  enemy = window['spawn'][sprite](x, y, enemiesCG);
 
   enemy.body.collides(playerCG, die);
   enemy.body.collides(bulletsCG);
   enemy.body.collides(wallsCG);
 
+  // Todos os inimigos seguem o player caso ele esteja perto o suficiente
   enemy.update = function() {
     var enemy_speed = 20;
     // Se o player está longe do inimigo ou o player está morto, o inimigo para
@@ -745,18 +758,16 @@ spawn.enemy = function(sprite, x, y) {
 }
 
 
-spawn.enemies = function(enemyGid) {
+spawn.enemies = function(enemyGid, enemyList) {
   enemies = game.add.group();
 
-  /**
-   * Acho que essa não é a melhor forma de criar os inimigos a partir da layer de objetos
-   * Mas tá funcionando muito bem :)
-   */
+  // Pega um inimigo aleatório da enemylist e spawna na posição definida no Tiled
   var mockenemies = game.add.group();
   map.createFromObjects('enemies', enemyGid, 'ash', 0, true, false, mockenemies);
   mockenemies.forEach(function(e) {
     e.kill();
-    enemies.add(spawn.enemy('ash', e.x, e.y));
+    var randomEnemy = enemyList[Math.floor(Math.random() * enemyList.length)];
+    enemies.add(spawn.enemy(randomEnemy, e.x, e.y));
   });
 }
 
@@ -836,12 +847,14 @@ states.loading = function() {
       game.load.audio(g.sfx.list.BULLET_HIT, 'Content/assets/audio/sfx/bullet-hit.ogg');
 
       // Inimigos
-      game.load.spritesheet('ash', 'Content/assets/sprite/ash.png', 16, 16);
       game.load.spritesheet('carlinhos', 'Content/assets/sprite/carlinhos_32.png', 32, 32);
-      game.load.spritesheet('pirata_m', 'Content/assets/sprite/ranger_m.png', 32, 36);
-      game.load.spritesheet('pirata_f', 'Content/assets/sprite/ranger_f.png', 32, 36);
-      game.load.spritesheet('wolf', 'Content/assets/sprite/Wolfpack.png', 32, 32);
-      game.load.spritesheet('rat', 'Content/assets/sprite/lpccatratdog.png', 32, 32);
+      game.load.spritesheet(enemyList.ASH, 'Content/assets/sprite/ash.png', 16, 16);
+      game.load.spritesheet(enemyList.PIRATA_M, 'Content/assets/sprite/ranger_m.png', 32, 36);
+      game.load.spritesheet(enemyList.PIRATA_F, 'Content/assets/sprite/ranger_f.png', 32, 36);
+      game.load.spritesheet(enemyList.WOLF, 'Content/assets/sprite/Wolfpack.png', 32, 32);
+      game.load.spritesheet(enemyList.RAT, 'Content/assets/sprite/lpccatratdog.png', 32, 32);
+      game.load.spritesheet(enemyList.DOG, 'Content/assets/sprite/ash.png', 16, 16);
+      game.load.spritesheet(enemyList.CAT, 'Content/assets/sprite/ash.png', 16, 16);
 
       // Itens
       game.load.spritesheet('hotdog', 'Content/assets/sprite/hotdog_16.png', 16, 16);
@@ -866,18 +879,22 @@ states.menu = function() {
 
       var key = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
       key.onDown.addOnce(function() {
-        game.state.start('fase.floresta');
+        game.state.start(stageList.FLORESTA);
       }, this);
     }
   }
 };
 
 states.floresta = function() {
+  var stageEnemies = [
+    enemyList.RAT,
+    enemyList.WOLF
+  ];
   return {
     update: update,
     render: render,
     create: function() {
-      g.currentState = 'fase.floresta';
+      g.currentState = stageList.FLORESTA;
 
       // Criação do mapa e dos objetos de colisão
       map = game.add.tilemap('floresta.tilemap');
@@ -894,7 +911,7 @@ states.floresta = function() {
       player = spawn.player(240, 500, playerCG);
       game.camera.follow(player);
 
-      spawn.enemies(531);
+      spawn.enemies(531, stageEnemies);
       spawn.hotdogs(map);
 
       // Resize, atualiza o hud e toca a musica
@@ -907,11 +924,16 @@ states.floresta = function() {
 }
 
 states.calcadao = function() {
+  var stageEnemies = [
+    enemyList.DOG,
+    enemyList.CAT
+  ];
+
   return {
     update: update,
     render: render,
     create: function() {
-      g.currentState = 'fase.calcadao';
+      g.currentState = stageList.CALCADAO;
 
       // Criação do mapa e dos objetos de colisão
       map = game.add.tilemap('calcadao.tilemap');
@@ -928,7 +950,9 @@ states.calcadao = function() {
       player = spawn.player(240, 500, playerCG);
       game.camera.follow(player);
 
-      spawn.enemies(706);
+      console.log(stageEnemies);
+
+      spawn.enemies(706, stageEnemies);
       // spawn.hotdogs(map);
 
       // Resize, atualiza o hud e toca a musica
@@ -973,7 +997,7 @@ var g = {
     }, 3000);
   },
   gotoNextStage: function() {
-    game.state.start('fase.calcadao');
+    game.state.start(stageList.CALCADAO);
     g.changingStages = false;
   },
   sfx: {
@@ -1074,8 +1098,8 @@ game.state.add('loading', states.loading);
 game.state.add('menu', states.menu);
 game.state.add('gameFinish', states.gameFinish);
 
-game.state.add('fase.floresta', states.floresta);
-game.state.add('fase.calcadao', states.calcadao);
+game.state.add(stageList.FLORESTA, states.floresta);
+game.state.add(stageList.CALCADAO, states.calcadao);
 game.state.add('fase.barco', states.barco);
 
 game.state.start('boot');
