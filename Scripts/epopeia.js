@@ -817,6 +817,11 @@ states.boot = function() {
       cursors.S = game.input.keyboard.addKey(Phaser.Keyboard.S);
       cursors.D = game.input.keyboard.addKey(Phaser.Keyboard.D);
 
+      // Teclas de debugging
+      cursors.J = game.input.keyboard.addKey(Phaser.Keyboard.J);
+      cursors.K = game.input.keyboard.addKey(Phaser.Keyboard.K);
+
+
       game.time.advancedTiming = true;
 
       g.gotoNextState();
@@ -1033,6 +1038,13 @@ var g = {
       console.log('next state not found');
     }
   },
+  gotoPreviousState: function() {
+    if (g.stateOrder[g.currentStateNum-1]) {
+      g.gotoState(g.stateOrder[g.currentStateNum-1]);
+    } else {
+      console.log('previous state not found');
+    }
+  },
   sfx: {
     list: {
       DEATH: [
@@ -1152,6 +1164,14 @@ function die(m, p) {
 }
 
 function update() {
+  // Teclas de debugging, vai pra tela anterior e próximo
+  if (cursors.J.isDown) {
+    g.gotoPreviousState();
+  } else if (cursors.K.isDown) {
+    g.gotoNextState();
+  }
+
+  // Atualiza o score e passa de fase quando todos os inimigos morrem
   g.updateHud();
   if (enemies && enemies.countLiving() == 0 && !g.changingStages) {
     g.stageCleared();
