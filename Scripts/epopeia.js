@@ -17,8 +17,8 @@ var bgm = null;
 var parameters = {
   BGMEnabled: true,
   debug: {
-    body: false,
-    fps: false
+    body: true,
+    fps: true
   },
   // canvasSize: {w: 832, h: 640},
   canvasSize: {w: 832/2, h: 640/2},
@@ -110,10 +110,12 @@ spawn.pirata_m = function(x, y, cg) {
   game.physics.p2.enable(spt, parameters.debug.body);
   spt.body.enableBody = true;
   spt.body.fixedRotation = true;
+  spt.body.setRectangle(15, 35, 16, 16); // hitbox
   spt.body.setCollisionGroup(cg);
 
+
   // Animações
-  spt.animations.add('down', [6, 7, 8], 2, true);
+  spt.animations.add('down', [6, 7, 8], 10, true);
   spt.animations.add('up', [0, 1, 2], 10, true);
   spt.animations.add('left', [9, 10, 11], 10, true);
   spt.animations.add('right', [3, 4, 5], 10, true);
@@ -174,6 +176,7 @@ spawn.pirata_f = function(x, y, cg) {
   game.physics.p2.enable(spt, parameters.debug.body);
   spt.body.enableBody = true;
   spt.body.fixedRotation = true;
+  spt.body.setRectangle(15, 35, 16, 16); // hitbox
   spt.body.setCollisionGroup(cg);
 
   // Animações
@@ -238,6 +241,7 @@ spawn.wolf = function(x, y, cg) {
   game.physics.p2.enable(spt, parameters.debug.body);
   spt.body.enableBody = true;
   spt.body.fixedRotation = true;
+  spt.body.setRectangle(32, 16, 16, 22); // hitbox
   spt.body.setCollisionGroup(cg);
 
   // Animações
@@ -302,6 +306,137 @@ spawn.rat = function(x, y, cg) {
   game.physics.p2.enable(spt, parameters.debug.body);
   spt.body.enableBody = true;
   spt.body.fixedRotation = true;
+  spt.body.setRectangle(32, 16, 16, 22); // hitbox
+  spt.body.setCollisionGroup(cg);
+
+  // Animações
+  spt.animations.add('down', [27, 28, 29], 10, true);
+  spt.animations.add('up', [0, 1, 2],, 10, true);
+  spt.animations.add('left', [9, 10, 11], 10, true);
+  spt.animations.add('right', [18, 19, 20], 10, true);
+
+  spt.anchor.setTo(0 , 0);
+
+  spt.events.onKilled.add(function() {
+    console.log("morri", this);
+  }, this);
+
+  spt.animateLeft = function() {
+    spt.animations.play('left');
+    lastDirection = parameters.directions.LEFT;
+  }
+
+  spt.animateUp = function() {
+    spt.animations.play('up');
+    lastDirection = parameters.directions.UP;
+
+  }
+
+  spt.animateRight = function() {
+    spt.animations.play('right');
+    lastDirection = parameters.directions.RIGHT;
+  }
+
+  spt.animateDown = function() {
+    spt.animations.play('down');
+    lastDirection = parameters.directions.DOWN;
+  }
+
+  spt.animateStop = function() {
+    spt.animations.stop();
+
+    switch (lastDirection) {
+      case parameters.directions.UP:
+        spt.frame = 24;
+        break;
+      case parameters.directions.DOWN:
+        spt.frame = 27;
+        break;
+      case parameters.directions.LEFT:
+        spt.frame = 9;
+        break;
+      case parameters.directions.RIGHT:
+        spt.frame = 18;
+        break;
+    }
+  }
+
+  return spt;
+}
+
+spawn.cat = function(x, y, cg) {
+  var lastDirection = parameters.directions.DOWN;
+  var spt = game.add.sprite(x, y, 'rat');
+
+  game.physics.p2.enable(spt, parameters.debug.body);
+  spt.body.enableBody = true;
+  spt.body.fixedRotation = true;
+  spt.body.setRectangle(32, 16, 16, 22); // hitbox
+  spt.body.setCollisionGroup(cg);
+
+  // Animações
+  spt.animations.add('down', [27, 28, 29], 10, true);
+  spt.animations.add('up', [0, 1, 2], 10, true);
+  spt.animations.add('left', [9, 10, 11], 10, true);
+  spt.animations.add('right', [18, 19, 20], 10, true);
+
+  spt.anchor.setTo(0 , 0);
+
+  spt.events.onKilled.add(function() {
+    console.log("morri", this);
+  }, this);
+
+  spt.animateLeft = function() {
+    spt.animations.play('left');
+    lastDirection = parameters.directions.LEFT;
+  }
+
+  spt.animateUp = function() {
+    spt.animations.play('up');
+    lastDirection = parameters.directions.UP;
+
+  }
+
+  spt.animateRight = function() {
+    spt.animations.play('right');
+    lastDirection = parameters.directions.RIGHT;
+  }
+
+  spt.animateDown = function() {
+    spt.animations.play('down');
+    lastDirection = parameters.directions.DOWN;
+  }
+
+  spt.animateStop = function() {
+    spt.animations.stop();
+
+    switch (lastDirection) {
+      case parameters.directions.UP:
+        spt.frame = 24;
+        break;
+      case parameters.directions.DOWN:
+        spt.frame = 27;
+        break;
+      case parameters.directions.LEFT:
+        spt.frame = 9;
+        break;
+      case parameters.directions.RIGHT:
+        spt.frame = 18;
+        break;
+    }
+  }
+
+  return spt;
+}
+
+spawn.dog = function(x, y, cg) {
+  var lastDirection = parameters.directions.DOWN;
+  var spt = game.add.sprite(x, y, 'rat');
+
+  game.physics.p2.enable(spt, parameters.debug.body);
+  spt.body.enableBody = true;
+  spt.body.fixedRotation = true;
+  spt.body.setRectangle(32, 16, 16, 22); // hitbox
   spt.body.setCollisionGroup(cg);
 
   // Animações
@@ -703,8 +838,8 @@ states.loading = function() {
       // Inimigos
       game.load.spritesheet('ash', 'Content/assets/sprite/ash.png', 16, 16);
       game.load.spritesheet('carlinhos', 'Content/assets/sprite/carlinhos_32.png', 32, 32);
-      game.load.spritesheet('pirata_m', 'Content/assets/sprite/ranger_m.png', 32, 32);
-      game.load.spritesheet('pirata_f', 'Content/assets/sprite/ranger_f.png', 32, 32);
+      game.load.spritesheet('pirata_m', 'Content/assets/sprite/ranger_m.png', 32, 36);
+      game.load.spritesheet('pirata_f', 'Content/assets/sprite/ranger_f.png', 32, 36);
       game.load.spritesheet('wolf', 'Content/assets/sprite/Wolfpack.png', 32, 32);
       game.load.spritesheet('rat', 'Content/assets/sprite/lpccatratdog.png', 32, 32);
 
