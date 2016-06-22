@@ -53,10 +53,18 @@ var enemyList = {
   CAT: 'cat',
 };
 
-var stageList = {
+var stateList = {
+  BOOT: 'boot',
+  LOADING: 'loading',
+  MENU: 'menu',
+
   FLORESTA: 'fase.floresta',
-  CALCADAO: 'fase.calcadao'
+  CALCADAO: 'fase.calcadao',
+  BARCO: 'fase.barco',
+
+  GAME_FINISH: 'game_finish'
 };
+
 
 spawn.ash = function(x, y, cg) {
     var lastDirection = parameters.directions.DOWN;
@@ -811,8 +819,7 @@ states.boot = function() {
 
       game.time.advancedTiming = true;
 
-      game.state.start('loading');
-      //game.stage.smoothed = false;
+      g.gotoNextState();
     }
   };
 }
@@ -866,7 +873,7 @@ states.loading = function() {
       game.add.text(600, 550, 'Loading...', { font: '30px Courier', fill: '#ffffff' });
     },
     create: function() {
-      game.state.start('menu');
+      g.gotoNextState();
     }
   }
 };
@@ -879,7 +886,7 @@ states.menu = function() {
 
       var key = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
       key.onDown.addOnce(function() {
-        game.state.start(stageList.FLORESTA);
+        g.gotoNextState();
       }, this);
     }
   }
@@ -894,8 +901,6 @@ states.floresta = function() {
     update: update,
     render: render,
     create: function() {
-      g.currentState = stageList.FLORESTA;
-
       // Criação do mapa e dos objetos de colisão
       map = game.add.tilemap('floresta.tilemap');
       map.addTilesetImage('forest_tiles', 'floresta.tiles');
@@ -933,7 +938,7 @@ states.calcadao = function() {
     update: update,
     render: render,
     create: function() {
-      g.currentState = stageList.CALCADAO;
+      g.currentState = stateList.CALCADAO;
 
       // Criação do mapa e dos objetos de colisão
       map = game.add.tilemap('calcadao.tilemap');
@@ -968,9 +973,21 @@ var scoreText, livesText;
 var g = {
   score: 0,
   currentState: null,
+  currentStateNum: 0,
   changingStages: false,
   lives: 3,
   gameplayEnabled: false,
+  stateOrder: [
+    stateList.BOOT,
+    stateList.LOADING,
+    stateList.MENU,
+
+    stateList.FLORESTA,
+    stateList.CALCADAO,
+    stateList.BARCO,
+
+    stateList.GAME_FINISH
+  ],
   stopGameplay: function() {
     // Para o movimento do jogador
     player.body.setZeroVelocity();
@@ -993,12 +1010,28 @@ var g = {
     t.cameraOffset.setTo(game.camera.width/2 - t.width/2, 60);
 
     window.setTimeout(function() {
-      g.gotoNextStage();
+      g.gotoNextState();
     }, 3000);
   },
-  gotoNextStage: function() {
-    game.state.start(stageList.CALCADAO);
+  gotoState: function(state) {
     g.changingStages = false;
+
+    g.currentState = state;
+    g.currentStateNum = g.getStateNumber(state);
+
+    console.log(g.currentStateNum);
+
+    game.state.start(state);
+  },
+  getStateNumber: function(state) {
+    return g.stateOrder.indexOf(state);
+  },
+  gotoNextState: function() {
+    if (g.stateOrder[g.currentStateNum+1]) {
+      g.gotoState(g.stateOrder[g.currentStateNum+1]);
+    } else {
+      console.log('next state not found');
+    }
   },
   sfx: {
     list: {
@@ -1093,14 +1126,14 @@ var g = {
 // Inicialização do phaser, registro das fases e inicio do jogo
 var game = new Phaser.Game(parameters.canvasSize.w, parameters.canvasSize.h, Phaser.AUTO, '');
 
-game.state.add('boot', states.boot);
-game.state.add('loading', states.loading);
-game.state.add('menu', states.menu);
-game.state.add('gameFinish', states.gameFinish);
+game.state.add(stateList.BOOT, states.boot);
+game.state.add(stateList.LOADING, states.loading);
+game.state.add(stateList.MENU, states.menu);
+game.state.add(stateList.GAME_FINISH, states.gameFinish);
 
-game.state.add(stageList.FLORESTA, states.floresta);
-game.state.add(stageList.CALCADAO, states.calcadao);
-game.state.add('fase.barco', states.barco);
+game.state.add(stateList.FLORESTA, states.floresta);
+game.state.add(stateList.CALCADAO, states.calcadao);
+game.state.add(stateList.BARCO, states.barco);
 
 game.state.start('boot');
 
