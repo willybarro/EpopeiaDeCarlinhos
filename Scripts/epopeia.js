@@ -325,8 +325,8 @@ spawn.rat = function(x, y, cg) {
   spt.body.setCollisionGroup(cg);
 
   // Animações
-  spt.animations.add('down', [27, 28, 29], 10, true);
-  spt.animations.add('up', [0, 1, 2], 10, true);
+  spt.animations.add('down', [0, 1, 2], 10, true);
+  spt.animations.add('up', [27, 28, 29], 10, true);
   spt.animations.add('left', [9, 10, 11], 10, true);
   spt.animations.add('right', [18, 19, 20], 10, true);
 
@@ -386,14 +386,14 @@ spawn.cat = function(x, y, cg) {
   game.physics.p2.enable(spt, parameters.debug.body);
   spt.body.enableBody = true;
   spt.body.fixedRotation = true;
-  spt.body.setRectangle(32, 16, 16, 22); // hitbox
+  spt.body.setRectangle(32, 30, 16, 22); // hitbox
   spt.body.setCollisionGroup(cg);
 
   // Animações
-  spt.animations.add('down', [27, 28, 29], 10, true);
-  spt.animations.add('up', [0, 1, 2], 10, true);
-  spt.animations.add('left', [9, 10, 11], 10, true);
-  spt.animations.add('right', [18, 19, 20], 10, true);
+  spt.animations.add('down', [6, 7, 8], 10, true);
+  spt.animations.add('up', [33, 34, 35], 10, true);
+  spt.animations.add('left', [15, 16, 17], 10, true);
+  spt.animations.add('right', [24, 25, 26], 10, true);
 
   spt.anchor.setTo(0 , 0);
 
@@ -427,16 +427,16 @@ spawn.cat = function(x, y, cg) {
 
     switch (lastDirection) {
       case parameters.directions.UP:
-        spt.frame = 24;
+        spt.frame = 0;
         break;
       case parameters.directions.DOWN:
-        spt.frame = 27;
+        spt.frame = 6;
         break;
       case parameters.directions.LEFT:
-        spt.frame = 9;
+        spt.frame = 15;
         break;
       case parameters.directions.RIGHT:
-        spt.frame = 18;
+        spt.frame = 24;
         break;
     }
   }
@@ -451,14 +451,14 @@ spawn.dog = function(x, y, cg) {
   game.physics.p2.enable(spt, parameters.debug.body);
   spt.body.enableBody = true;
   spt.body.fixedRotation = true;
-  spt.body.setRectangle(32, 16, 16, 22); // hitbox
+  spt.body.setRectangle(32, 30, 16, 22); // hitbox
   spt.body.setCollisionGroup(cg);
 
   // Animações
-  spt.animations.add('down', [27, 28, 29], 10, true);
-  spt.animations.add('up', [24, 25, 26, 27], 10, true);
-  spt.animations.add('left', [9, 10, 11], 10, true);
-  spt.animations.add('right', [18, 19, 20], 10, true);
+  spt.animations.add('down', [36, 37, 38], 10, true);
+  spt.animations.add('up', [63, 64, 65], 10, true);
+  spt.animations.add('left', [45, 46, 47], 10, true);
+  spt.animations.add('right', [54, 55, 56], 10, true);
 
   spt.anchor.setTo(0 , 0);
 
@@ -492,16 +492,16 @@ spawn.dog = function(x, y, cg) {
 
     switch (lastDirection) {
       case parameters.directions.UP:
-        spt.frame = 24;
+        spt.frame = 63;
         break;
       case parameters.directions.DOWN:
-        spt.frame = 27;
+        spt.frame = 36;
         break;
       case parameters.directions.LEFT:
-        spt.frame = 9;
+        spt.frame = 45;
         break;
       case parameters.directions.RIGHT:
-        spt.frame = 18;
+        spt.frame = 54;
         break;
     }
   }
