@@ -779,14 +779,14 @@ spawn.enemies = function(enemyGid, enemyList) {
   });
 }
 
-spawn.hotdogs = function(map) {
+spawn.hotdogs = function(gid, map) {
   hotdogs = game.add.group();  
   hotdogs.enableBody = true;
   hotdogs.enableBodyDebug = parameters.debug.body;
   hotdogs.physicsBodyType = Phaser.Physics.P2JS;
 
   // Cria os hotdogs a partir dos objetos posicionados via Tiled
-  map.createFromObjects('hotdogs', 530, 'hotdog', 0, true, false, hotdogs);
+  map.createFromObjects('hotdogs', gid, 'hotdog', 0, true, false, hotdogs);
   for (var i in hotdogs.children) {
     var hotdog = hotdogs.children[i];
     hotdog.body.setCollisionGroup(hotdogCG);
@@ -922,7 +922,7 @@ states.floresta = function() {
       game.camera.follow(player);
 
       spawn.enemies(531, stageEnemies);
-      spawn.hotdogs(map);
+      spawn.hotdogs(530, map);
 
       // Resize, atualiza o hud e toca a musica
       layer.resizeWorld();
@@ -963,7 +963,7 @@ states.calcadao = function() {
       console.log(stageEnemies);
 
       spawn.enemies(706, stageEnemies);
-      
+      spawn.hotdogs(722, map);
       // spawn.hotdogs(map);
 
       // Resize, atualiza o hud e toca a musica
