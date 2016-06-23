@@ -146,7 +146,7 @@ spawn.pirata_m = function(x, y, cg) {
   spt.anchor.setTo(0 , 0);
 
   spt.events.onKilled.add(function() {
-    console.log("morri", this);
+    // console.log("morri", this);
   }, this);
 
   spt.animateLeft = function() {
@@ -210,10 +210,6 @@ spawn.pirata_f = function(x, y, cg) {
 
   spt.anchor.setTo(0 , 0);
 
-  spt.events.onKilled.add(function() {
-    console.log("morri", this);
-  }, this);
-
   spt.animateLeft = function() {
     spt.animations.play('left');
     lastDirection = parameters.directions.LEFT;
@@ -274,10 +270,6 @@ spawn.wolf = function(x, y, cg) {
   spt.animations.add('right', [8, 9, 10, 11], 10, true);
 
   spt.anchor.setTo(0 , 0);
-
-  spt.events.onKilled.add(function() {
-    console.log("morri", this);
-  }, this);
 
   spt.animateLeft = function() {
     spt.animations.play('left');
@@ -340,10 +332,6 @@ spawn.rat = function(x, y, cg) {
 
   spt.anchor.setTo(0 , 0);
 
-  spt.events.onKilled.add(function() {
-    console.log("morri", this);
-  }, this);
-
   spt.animateLeft = function() {
     spt.animations.play('left');
     lastDirection = parameters.directions.LEFT;
@@ -405,10 +393,6 @@ spawn.cat = function(x, y, cg) {
 
   spt.anchor.setTo(0 , 0);
 
-  spt.events.onKilled.add(function() {
-    console.log("morri", this);
-  }, this);
-
   spt.animateLeft = function() {
     spt.animations.play('left');
     lastDirection = parameters.directions.LEFT;
@@ -469,10 +453,6 @@ spawn.dog = function(x, y, cg) {
   spt.animations.add('right', [54, 55, 56], 10, true);
 
   spt.anchor.setTo(0 , 0);
-
-  spt.events.onKilled.add(function() {
-    console.log("morri", this);
-  }, this);
 
   spt.animateLeft = function() {
     spt.animations.play('left');
@@ -1087,14 +1067,14 @@ var g = {
     if (g.stateOrder[g.currentStateNum+1]) {
       g.gotoState(g.stateOrder[g.currentStateNum+1]);
     } else {
-      console.log('next state not found');
+      console.log('Next state not found');
     }
   },
   gotoPreviousState: function() {
     if (g.stateOrder[g.currentStateNum-1]) {
       g.gotoState(g.stateOrder[g.currentStateNum-1]);
     } else {
-      console.log('previous state not found');
+      console.log('Previous state not found');
     }
   },
   sfx: {
