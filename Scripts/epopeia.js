@@ -963,6 +963,7 @@ states.calcadao = function() {
       console.log(stageEnemies);
 
       spawn.enemies(706, stageEnemies);
+      
       // spawn.hotdogs(map);
 
       // Resize, atualiza o hud e toca a musica
