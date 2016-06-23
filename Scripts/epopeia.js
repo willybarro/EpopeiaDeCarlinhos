@@ -17,7 +17,7 @@ var bgm = null;
 var parameters = {
   BGMEnabled: true,
   debug: {
-    body: true,
+    body: false,
     fps: false
   },
   // canvasSize: {w: 832, h: 640},
@@ -838,10 +838,15 @@ states.loading = function() {
 
       game.load.image('calcadao.tiles', 'Content/assets/sprite/city_outside.png');
       game.load.tilemap('calcadao.tilemap', "Content/assets/tilemap/floresta/json/carlinhosCalcadao.json", null, Phaser.Tilemap.TILED_JSON);
+
+      game.load.image('barco.tiles.ship', 'Content/assets/sprite/ship.png');
+      game.load.image('barco.tiles.stone', 'Content/assets/sprite/stone-bridge2.png');
+      game.load.tilemap('barco.tilemap', "Content/assets/tilemap/floresta/json/carlinhosBarco.json", null, Phaser.Tilemap.TILED_JSON);
       
       // BGM
       game.load.audio('bgm.floresta', 'Content/assets/audio/bgm/00-over-the-bay.ogg');
       game.load.audio('bgm.calcadao', 'Content/assets/audio/bgm/00-make-me-dance.ogg');
+      game.load.audio('bgm.barco', 'Content/assets/audio/bgm/00-long-distance.mp3');
 
       // SFX
       game.load.audio(g.sfx.list.DEATH[0], 'Content/assets/audio/sfx/death-1.ogg');
@@ -943,8 +948,6 @@ states.calcadao = function() {
     update: update,
     render: render,
     create: function() {
-      g.currentState = stateList.CALCADAO;
-
       // Criação do mapa e dos objetos de colisão
       map = game.add.tilemap('calcadao.tilemap');
       map.addTilesetImage('city_outside', 'calcadao.tiles');
@@ -960,12 +963,9 @@ states.calcadao = function() {
       player = spawn.player(240, 500, playerCG);
       game.camera.follow(player);
 
-      console.log(stageEnemies);
-
       spawn.enemies(706, stageEnemies);
       spawn.hotdogs(722, map);
-      // spawn.hotdogs(map);
-
+      
       // Resize, atualiza o hud e toca a musica
       layer.resizeWorld();
       g.createHud();
@@ -974,6 +974,57 @@ states.calcadao = function() {
     }
   };
 }
+
+states.barco = function() {
+  var stageEnemies = [
+    enemyList.PIRATA_M,
+    enemyList.PIRATA_F
+  ];
+
+  return {
+    update: update,
+    render: render,
+    create: function() {
+      // Criação do mapa e dos objetos de colisão
+      map = game.add.tilemap('barco.tilemap');
+      map.addTilesetImage('stone-bridge2', 'barco.tiles.stone');
+      map.addTilesetImage('ship', 'barco.tiles.ship');
+      map.addTilesetImage('forest_tiles', 'floresta.tiles');
+      walls = game.physics.p2.convertCollisionObjects(map, "collision", true);   
+      for(var wall in walls) {
+        walls[wall].setCollisionGroup(wallsCG);
+        walls[wall].collides([playerCG, bulletsCG, enemiesCG]);
+      }
+      layer = map.createLayer("background");
+      map.createLayer("floor");
+      map.createLayer("ship");
+
+      // // Cria os atores e itens
+      player = spawn.player(90, 30, playerCG);
+      game.camera.follow(player);
+
+      spawn.enemies(682, stageEnemies);
+      spawn.hotdogs(689, map);
+
+      // Resize, atualiza o hud e toca a musica
+      layer.resizeWorld();
+      g.createHud();
+      g.updateHud();
+      g.bgm.play(g.bgm.list.BARCO);
+    }
+  };
+};
+
+states.gameFinish = function() {
+  return {
+    create: function() {
+      var textScore = g.pad(g.score, 5);
+      game.add.text(40, 40, 'Fim de jogo! .', {font: '24px Arial', fill: '#ffffff'});
+      game.add.text(40, 80, 'Vá buscar seu pão! .', {font: '24px Arial', fill: '#ffffff'});
+      game.add.text(40, 160, 'Score total: ' + textScore, {font: '24px Arial', fill: '#ffffff'});
+    }
+  }
+};
 
 var scoreText, livesText;
 var g = {
@@ -1025,7 +1076,7 @@ var g = {
     g.currentState = state;
     g.currentStateNum = g.getStateNumber(state);
 
-    console.log(g.currentStateNum);
+    g.bgm.stop();
 
     game.state.start(state);
   },
@@ -1081,7 +1132,8 @@ var g = {
   bgm: {
     list: {
       FLORESTA: 'bgm.floresta',
-      CALCADAO: 'bgm.calcadao'
+      CALCADAO: 'bgm.calcadao',
+      BARCO: 'bgm.barco',
     },
     play: function(asset) {
       if (parameters.BGMEnabled) {
