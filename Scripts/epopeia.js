@@ -999,9 +999,10 @@ states.gameFinish = function() {
   return {
     create: function() {
       var textScore = g.pad(g.score, 5);
-      game.add.text(40, 40, 'Fim de jogo! .', {font: '24px Arial', fill: '#ffffff'});
-      game.add.text(40, 80, 'Vá buscar seu pão! .', {font: '24px Arial', fill: '#ffffff'});
-      game.add.text(40, 160, 'Score total: ' + textScore, {font: '24px Arial', fill: '#ffffff'});
+      game.add.text(40, 40, 'Fim de jogo! Vá buscar seu pão', {font: '24px Arial', fill: '#ffffff'});
+      //game.add.text(40, 70, 'Vá buscar seu pão', {font: '22px Arial', fill: '#ffffff'});
+      game.add.text(40, 80, 'Pontuação total: ' + textScore, {font: '18px Arial', fill: '#ffffff', textAlign: 'center'});
+      game.add.text(40, 210, "IBTA - Ciências da Computação - 2016/06\nGuilherme P. Gomides\nTaís Guimarães Lima\nWilly G. M. Barro Raffel", {font: '16px Arial', fill: '#ffffff'});
     }
   }
 };
